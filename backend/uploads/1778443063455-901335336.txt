@@ -1,0 +1,26 @@
+let sum=function(x){
+    return function(y){
+        return x+y
+    }
+}
+let rs=sum(10)
+console.log(rs(20))
+
+actually the output should be undefined when we check manualy but it shows 30 why so 
+ans:--every js function has closure by default because of this closure property the variables of outside scope will be maintained temporarily in heap even outside function execution is completed
+
+
+
+
+
+
+to use predefinedmethods
+1)spelling
+2)parameters
+3)what it returns
+
+
+
+
+
+

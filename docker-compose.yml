@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  gitea:
+    image: gitea/gitea:1.22
+    container_name: github-clone-gitea
+    restart: unless-stopped
+
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      TZ: Asia/Kolkata
+
+      # Database
+      GITEA__database__DB_TYPE: sqlite3
+      GITEA__database__PATH: /data/gitea/gitea.db
+
+      # Server Configuration
+      GITEA__server__DOMAIN: localhost
+      GITEA__server__ROOT_URL: http://localhost:3000/
+      GITEA__server__HTTP_PORT: 3000
+
+      # SSH Configuration
+      GITEA__server__SSH_DOMAIN: localhost
+      GITEA__server__SSH_PORT: 2222
+      GITEA__server__START_SSH_SERVER: true
+      GITEA__server__SSH_LISTEN_PORT: 2222
+
+      # Security
+      GITEA__security__SECRET_KEY: change-this-to-a-random-64-char-string
+      GITEA__security__INTERNAL_TOKEN: change-this-to-another-random-token
+
+      # Registration Settings
+      GITEA__service__DISABLE_REGISTRATION: false
+      GITEA__service__REQUIRE_SIGNIN_VIEW: false
+
+      # Logging
+      GITEA__log__LEVEL: Info
+
+      # Webhooks
+      GITEA__webhook__ALLOWED_HOST_LIST: "*"
+
+    ports:
+      - "3000:3000"
+      - "2222:2222"
+
+    volumes:
+      - gitea_data:/data
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/healthz" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  gitea_data:
+    driver: local

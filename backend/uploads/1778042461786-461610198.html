@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Online Examination System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            width: 450px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #1e3c72;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #1e3c72;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #16325c;
+        }
+
+        #examPage {
+            display: none;
+            text-align: left;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .timer {
+            font-weight: bold;
+            color: red;
+        }
+
+        .warning {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .question {
+            margin: 15px 0;
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 20px;
+            background-color: green;
+        }
+
+        .submit-btn:hover {
+            background-color: darkgreen;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- LOGIN PAGE -->
+    <div id="loginPage">
+        <h2>Secure Exam Login</h2>
+        <input type="text" id="username" placeholder="Enter Username">
+        <input type="password" id="password" placeholder="Enter Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- EXAM PAGE -->
+    <div id="examPage">
+        <div class="header">
+            <div class="timer">⏳ Time Left: <span id="time">120</span>s</div>
+            <div class="warning">⚠ Warnings: <span id="warningCount">0</span></div>
+        </div>
+
+        <hr>
+
+        <div class="question">
+            <h4>Q1. What is 5 + 3?</h4>
+            <input type="radio" name="q1" value="6"> 6<br>
+            <input type="radio" name="q1" value="8"> 8<br>
+            <input type="radio" name="q1" value="10"> 10<br>
+        </div>
+
+        <div class="question">
+            <h4>Q2. HTML stands for?</h4>
+            <input type="radio" name="q2" value="Hyper Text Markup Language"> Hyper Text Markup Language<br>
+            <input type="radio" name="q2" value="High Transfer Machine Language"> High Transfer Machine Language<br>
+            <input type="radio" name="q2" value="Home Tool Markup Language"> Home Tool Markup Language<br>
+        </div>
+
+        <button class="submit-btn" onclick="submitExam()">Submit Exam</button>
+    </div>
+
+</div>
+<script>
+
+    let timeLeft = 120;
+    let timer;
+    let warnings = 0;
+    const maxWarnings = 3;
+
+    // Correct Answers
+    const correctAnswers = {
+        q1: "8",
+        q2: "Hyper Text Markup Language"
+    };
+
+    function login() {
+        let user = document.getElementById("username").value;
+        let pass = document.getElementById("password").value;
+
+        if(user === "student" && pass === "1234") {
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("examPage").style.display = "block";
+            enterFullscreen();
+            startTimer();
+        } else {
+            alert("Invalid Credentials!");
+        }
+    }
+
+    function startTimer() {
+        timer = setInterval(function() {
+            timeLeft--;
+            document.getElementById("time").innerText = timeLeft;
+
+            if(timeLeft <= 0) {
+                clearInterval(timer);
+                alert("Time's Up!");
+                submitExam();
+            }
+        }, 1000);
+    }
+
+    function submitExam() {
+        clearInterval(timer);
+
+        let score = 0;
+        let total = Object.keys(correctAnswers).length;
+
+        for(let question in correctAnswers) {
+            let selected = document.querySelector(`input[name="${question}"]:checked`);
+            if(selected && selected.value === correctAnswers[question]) {
+                score++;
+            }
+        }
+
+        showResult(score, total);
+    }
+
+    function showResult(score, total) {
+        document.getElementById("examPage").innerHTML = `
+            <h2>Exam Completed</h2>
+            <h3>Your Score: ${score} / ${total}</h3>
+            <p>Percentage: ${(score/total)*100}%</p>
+            <button onclick="location.reload()">Logout</button>
+        `;
+    }
+
+    function enterFullscreen() {
+        document.documentElement.requestFullscreen();
+    }
+
+    document.addEventListener("visibilitychange", function() {
+        if(document.hidden) {
+            warnings++;
+            document.getElementById("warningCount").innerText = warnings;
+
+            if(warnings >= maxWarnings) {
+                alert("Maximum warnings exceeded. Exam auto-submitted.");
+                submitExam();
+            }
+        }
+    });
+
+    document.addEventListener("contextmenu", event => event.preventDefault());
+    document.addEventListener("copy", event => event.preventDefault());
+    document.addEventListener("paste", event => event.preventDefault());
+
+    window.addEventListener("blur", function() {
+        warnings++;
+        document.getElementById("warningCount").innerText = warnings;
+
+        if(warnings >= maxWarnings) {
+            alert("Exam auto-submitted due to violations.");
+            submitExam();
+        }
+    });
+
+</script>
+
+
+</body>
+</html>
