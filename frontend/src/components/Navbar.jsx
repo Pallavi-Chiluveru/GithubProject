@@ -8,6 +8,7 @@ import {
 import { io } from "socket.io-client";
 import Github from "./GithubIcon";
 import API from "../api";
+import { defaultAppearance, useTheme } from "../theme/ThemeContext";
 
 // Singleton socket so we don't reconnect on every render
 let _socket = null;
@@ -30,6 +31,7 @@ export default function Navbar() {
 
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user") || "{}"));
+  const { setAppearance } = useTheme();
 
   // Keep token/user in sync if localStorage changes (e.g. login in another tab)
   useEffect(() => {
@@ -77,6 +79,7 @@ export default function Navbar() {
     if (_socket) { _socket.disconnect(); _socket = null; }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    setAppearance(defaultAppearance);
     // Full page redirect so all stale React state is cleared instantly
     window.location.href = "/";
   };
@@ -127,17 +130,17 @@ export default function Navbar() {
   );
 
   return (
-    <nav className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-[#30363d] bg-[#0d1117] px-4 shadow-sm">
+    <nav className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-[var(--border-color)] bg-[var(--bg-primary)] px-4 shadow-sm text-[var(--text-primary)]">
       {/* Left */}
       <div className="flex items-center gap-4">
-        <button className="rounded-md p-2 hover:bg-[#30363d] md:hidden">
-          <Menu className="h-5 w-5 text-[#8b949e]" />
+        <button className="rounded-md p-2 hover:bg-[var(--bg-secondary)] md:hidden">
+          <Menu className="h-5 w-5 text-[var(--text-secondary)]" />
         </button>
         <Link to="/dashboard" className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md border border-[#30363d] bg-[#010409]">
-            <Github className="h-5 w-5 text-[#f0f6fc]" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border-color)] bg-[var(--bg-secondary)]">
+            <Github className="h-5 w-5 text-[var(--text-primary)]" />
           </div>
-          <span className="hidden text-sm font-bold text-[#f0f6fc] md:block">{pageTitle}</span>
+          <span className="hidden text-sm font-bold text-[var(--text-primary)] md:block">{pageTitle}</span>
         </Link>
       </div>
 
@@ -145,8 +148,8 @@ export default function Navbar() {
       <div className="flex items-center gap-2">
         {token ? (
           <>
-            <div className="flex items-center border-r border-[#30363d] pr-2 mr-2">
-              <button className="rounded-md p-2 text-[#8b949e] hover:bg-[#30363d] hover:text-[#f0f6fc]">
+            <div className="flex items-center border-r border-[var(--border-color)] pr-2 mr-2">
+              <button className="rounded-md p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]">
                 <Box className="h-4 w-4" />
                 <ChevronDown className="h-3 w-3 inline ml-1" />
               </button>
@@ -157,25 +160,25 @@ export default function Navbar() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-1 rounded-md border border-[#30363d] bg-[#21262d] px-2 py-1 text-[#8b949e] hover:bg-[#30363d] transition-all"
+                  className="flex items-center gap-1 rounded-md border border-[var(--border-color)] bg-[var(--bg-secondary)] px-2 py-1 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] transition-all"
                 >
                   <Plus className="h-4 w-4" />
                   <ChevronDown className="h-3 w-3" />
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-52 rounded-md border border-[#30363d] bg-[#161b22] py-2 shadow-2xl z-[60]">
+                  <div className="absolute right-0 mt-2 w-52 rounded-md border border-[var(--border-color)] bg-[var(--bg-secondary)] py-2 shadow-2xl z-[60]">
                     {menuItems.map((item, index) => (
                       item.type === "divider" ? (
-                        <div key={index} className="my-1 border-t border-[#30363d]" />
+                        <div key={index} className="my-1 border-t border-[var(--border-color)]" />
                       ) : (
                         <Link
                           key={index}
                           to={item.path}
                           onClick={() => setIsDropdownOpen(false)}
-                          className="flex items-center gap-3 px-4 py-1.5 text-sm text-[#c9d1d9] hover:bg-[#1f6feb] hover:text-white transition-all group"
+                          className="flex items-center gap-3 px-4 py-1.5 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-all group"
                         >
-                          <span className="text-[#8b949e] group-hover:text-white">{item.icon}</span>
+                          <span className="text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">{item.icon}</span>
                           <span className="font-medium">{item.label}</span>
                         </Link>
                       )
@@ -187,12 +190,12 @@ export default function Navbar() {
               {/* Bell with unread badge */}
               <Link
                 to="/notifications"
-                className="relative rounded-md p-2 text-[#8b949e] hover:bg-[#30363d] hover:text-[#f0f6fc]"
+                className="relative rounded-md p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
                 title="Notifications"
               >
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#1f6feb] text-[9px] font-bold text-white">
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[9px] font-bold text-white">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
@@ -201,7 +204,7 @@ export default function Navbar() {
               {/* Invitations */}
               <Link
                 to="/invitations"
-                className="rounded-md p-2 text-[#8b949e] hover:bg-[#30363d] hover:text-[#f0f6fc]"
+                className="rounded-md p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
                 title="Invitations"
               >
                 <Mail className="h-4 w-4" />
@@ -209,12 +212,12 @@ export default function Navbar() {
 
               <Link 
                 to="/pulls"
-                className="rounded-md p-2 text-[#8b949e] hover:bg-[#30363d] hover:text-[#f0f6fc]"
+                className="rounded-md p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
                 title="Pull requests"
               >
                 <GitPullRequest className="h-4 w-4" />
               </Link>
-              <button className="rounded-md p-2 text-[#8b949e] hover:bg-[#30363d] hover:text-[#f0f6fc]">
+              <button className="rounded-md p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]">
                 <History className="h-4 w-4" />
               </button>
             </div>

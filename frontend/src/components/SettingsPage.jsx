@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import API from "../api";
 import { useNavigate, useLocation } from "react-router-dom";
+import { defaultAppearance, useTheme } from "../theme/ThemeContext";
 
 const SECTIONS = [
   { id: "profile",      icon: User,        label: "Public profile" },
@@ -31,6 +32,7 @@ function Toast({ msg, ok }) {
 export default function SettingsPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { setAppearance: setGlobalAppearance } = useTheme();
   const [active, setActive] = useState("profile");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,10 +75,14 @@ export default function SettingsPage() {
       setProfile({ username: u.username || "", gitname: u.gitname || "", bio: u.bio || "", profileImageUrl: u.profileImageUrl || "" });
       setEmailForm(f => ({ ...f, email: u.email || "" }));
       setNotifPrefs(u.notificationPrefs || notifPrefs);
-      setAppearance(u.appearance || appearance);
+      setAppearance(u.appearance || defaultAppearance);
     }).catch(() => {}).finally(() => setLoading(false));
     API.get("/user-api/ssh-keys").then(res => setSshKeys(res.data || [])).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    setGlobalAppearance(appearance);
+  }, [appearance, setGlobalAppearance]);
 
   const saveProfile = async () => {
     setSaving(true);
@@ -143,9 +149,9 @@ export default function SettingsPage() {
   const applyAppearance = (prefs) => {
     // Theme
     if (prefs.theme === "light") {
-      document.documentElement.classList.add("light-theme");
+      document.documentElement.classList.remove("dark-theme");
     } else {
-      document.documentElement.classList.remove("light-theme");
+      document.documentElement.classList.add("dark-theme");
     }
 
     // Font Size

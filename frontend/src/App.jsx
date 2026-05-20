@@ -1,8 +1,9 @@
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Navbar from "./components/Navbar";
+import { ThemeProvider } from "./theme/ThemeContext";
 
 // Lazy loaded components for better performance
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -46,7 +47,7 @@ const RepoSettings = lazy(() => import("./components/RepoSettings"));
 
 // Loading fallback
 const PageLoader = () => (
-  <div className="flex h-screen items-center justify-center bg-[#0d1117]">
+  <div className="flex h-screen items-center justify-center bg-[var(--bg-primary)]">
     <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#f78166] border-t-transparent"></div>
   </div>
 );
@@ -55,31 +56,12 @@ const PageLoader = () => (
 import NotificationProvider from "./components/NotificationProvider";
 
 function App() {
-  React.useEffect(() => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const appearance = user.appearance || { theme: "light", fontSize: "medium" };
-      
-      // Apply theme
-      if (appearance.theme === "dark") {
-        document.documentElement.classList.remove("light-theme");
-      } else {
-        document.documentElement.classList.add("light-theme");
-      }
-
-      // Apply font size
-      const sizeMap = { small: "14px", medium: "16px", large: "18px" };
-      document.documentElement.style.fontSize = sizeMap[appearance.fontSize] || "16px";
-    } catch (e) {
-      console.error("Failed to load appearance:", e);
-    }
-  }, []);
-
   return (
-    <BrowserRouter>
-      <NotificationProvider>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
+    <ThemeProvider>
+      <BrowserRouter>
+        <NotificationProvider>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
@@ -122,7 +104,8 @@ function App() {
         </Routes>
       </Suspense>
     </NotificationProvider>
-  </BrowserRouter>
+      </BrowserRouter>
+    </ThemeProvider>
 
   );
 }
