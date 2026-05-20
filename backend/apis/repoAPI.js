@@ -124,18 +124,11 @@ repoApp.post("/createRepo", verifyToken, async (req, res) => {
       repoId: repo._id,
     }).save();
 
-    // ─── Mirror repository in Gitea (non-blocking) ─────────────────────────────
-    // Creates a real Git repo in Gitea and registers webhook for real-time events.
-    setImmediate(async () => {
-      try {
-        if (!isGiteaConfigured()) return;
-
-        const user = await UserModel.findById(req.user.id).select("giteaUsername giteaToken").lean();
-        if (!user?.giteaUsername || !user?.giteaToken) {
-          console.warn(`[Gitea] User ${req.user.username} has no Gitea account — skipping repo creation.`);
-          return;
-        }
-
+    // Mirror repository in Gitea before telling the client the repo is ready.
+    // This avoids a race where the UI shows success but the first git push still 404s.
+    if (isGiteaConfigured()) {
+      const user = await UserModel.findById(req.user.id).select("giteaUsername giteaToken").lean();
+      if (user?.giteaUsername && user?.giteaToken) {
         let targetUser = user;
         if (organizationId) {
           const org = await OrganizationModel.findById(organizationId);
@@ -159,7 +152,6 @@ repoApp.post("/createRepo", verifyToken, async (req, res) => {
         });
 
         if (giteaRepo) {
-          // Store Gitea references in MongoDB
           await RepositoryModel.findByIdAndUpdate(repo._id, {
             giteaRepoId: giteaRepo.id,
             giteaFullName: giteaRepo.full_name,
@@ -168,10 +160,8 @@ repoApp.post("/createRepo", verifyToken, async (req, res) => {
             giteaSynced: true,
           });
 
-          // Register webhook so push/PR events flow back to us
           await registerRepoWebhook(targetUser.giteaUsername, name);
 
-          // Notify all connected clients
           getIO().emit("repo_created", {
             repoId: repo._id,
             name,
@@ -181,10 +171,10 @@ repoApp.post("/createRepo", verifyToken, async (req, res) => {
 
           console.log(`[Gitea] Repo ${name} successfully created and webhook registered.`);
         }
-      } catch (giteaErr) {
-        console.error(`[Gitea] Repo mirror failed for ${name}:`, giteaErr.message);
+      } else {
+        console.warn(`[Gitea] User ${req.user.username} has no Gitea account — skipping repo creation.`);
       }
-    });
+    }
 
     res.status(201).json({ message: "Repository created successfully", repo });
   } catch (err) {
