@@ -5,19 +5,24 @@ services:
     image: gitea/gitea:1.22
     container_name: github-clone-gitea
     restart: unless-stopped
-
+# postgresql://gitea_qed9_user:wu4PL2zWQLoAjDavBePEX4GzSnjKL04y@dpg-d86s8j0jo89c73d0nr80-a.singapore-postgres.render.com/gitea_qed9
     environment:
       USER_UID: 1000
       USER_GID: 1000
       TZ: Asia/Kolkata
 
-      # Database
-      GITEA__database__DB_TYPE: sqlite3
-      GITEA__database__PATH: /data/gitea/gitea.db
+      # External PostgreSQL Database
+      GITEA__database__DB_TYPE: postgres
+      GITEA__database__HOST: dpg-d86s8j0jo89c73d0nr80-a.singapore-postgres.render.com
+      GITEA__database__NAME: gitea_qed9
+      GITEA__database__USER: gitea_qed9_user
+      GITEA__database__PASSWD: wu4PL2zWQLoAjDavBePEX4GzSnjKL04y
+      GITEA__database__SSL_MODE: require
+      GITEA__database__PORT: 5432
 
       # Server Configuration
-      GITEA__server__DOMAIN: localhost
-      GITEA__server__ROOT_URL: http://localhost:3000/
+      GITEA__server__DOMAIN: gitea-1-22.onrender.com
+      GITEA__server__ROOT_URL: https://gitea-1-22.onrender.com/
       GITEA__server__HTTP_PORT: 3000
 
       # SSH Configuration
@@ -26,20 +31,6 @@ services:
       GITEA__server__START_SSH_SERVER: true
       GITEA__server__SSH_LISTEN_PORT: 2222
 
-      # Security
-      GITEA__security__SECRET_KEY: change-this-to-a-random-64-char-string
-      GITEA__security__INTERNAL_TOKEN: change-this-to-another-random-token
-
-      # Registration Settings
-      GITEA__service__DISABLE_REGISTRATION: false
-      GITEA__service__REQUIRE_SIGNIN_VIEW: false
-
-      # Logging
-      GITEA__log__LEVEL: Info
-
-      # Webhooks
-      GITEA__webhook__ALLOWED_HOST_LIST: "*"
-
     ports:
       - "3000:3000"
       - "2222:2222"
@@ -47,12 +38,5 @@ services:
     volumes:
       - gitea_data:/data
 
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000/api/healthz" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
 volumes:
   gitea_data:
-    driver: local
