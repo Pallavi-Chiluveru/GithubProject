@@ -4,7 +4,15 @@ const activityLogSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
-    required: true,
+    required: false,
+  },
+  giteaUsername: {
+    type: String,
+    default: "",
+  },
+  pushedBy: {
+    type: String,
+    default: "",
   },
   action: {
     type: String,

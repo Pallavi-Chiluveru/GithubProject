@@ -18,8 +18,7 @@ const IssueDetails = lazy(() => import("./components/IssueDetails"));
 const ImportRepo = lazy(() => import("./components/ImportRepo"));
 const CreateProject = lazy(() => import("./components/CreateProject"));
 const CreateGist = lazy(() => import("./components/CreateGist"));
-const Codespaces = lazy(() => import("./components/Codespaces"));
-const CreateCodespace = lazy(() => import("./components/CreateCodespace"));
+
 const Changelog = lazy(() => import("./components/Changelog"));
 const OrgDashboard = lazy(() => import("./components/OrgDashboard"));
 const Notifications = lazy(() => import("./components/Notifications"));
@@ -83,8 +82,7 @@ function App() {
           <Route path="/import" element={<ImportRepo />} />
           <Route path="/new-project" element={<CreateProject />} />
           <Route path="/gist" element={<CreateGist />} />
-          <Route path="/codespaces" element={<Codespaces />} />
-          <Route path="/codespaces/new" element={<CreateCodespace />} />
+
           <Route path="/changelog" element={<Changelog />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/settings/organizations" element={<ManageOrgs />} />

@@ -8,6 +8,7 @@ import { RepositoryModel } from "../models/RepositoryModel.js";
 import { getGiteaRepo } from "./giteaRepoService.js";
 import { listBranchNames } from "./giteaBranchService.js";
 import { isGiteaConfigured } from "./giteaClient.js";
+import { UserModel } from "../models/UserModel.js";
 
 /**
  * Syncs the latest Gitea repo metadata into MongoDB.
@@ -29,6 +30,18 @@ export const syncRepoFromGitea = async (mongoRepoId) => {
     ]);
 
     if (!giteaRepo) return;
+
+    // Verify displayed owner matches Gitea owner (authoritative source)
+    const realGiteaOwner = giteaRepo.owner?.username || giteaRepo.owner?.login;
+    if (realGiteaOwner && repo.owner) {
+      const ownerUser = await UserModel.findById(repo.owner);
+      if (ownerUser) {
+        const displayedOwner = ownerUser.giteaUsername || ownerUser.username;
+        if (displayedOwner !== realGiteaOwner) {
+          console.warn(`[Sync Identity Check] Identity mismatch! Displayed owner in MongoDB is "${displayedOwner}" but Gitea owner is "${realGiteaOwner}"`);
+        }
+      }
+    }
 
     // Update MongoDB cache fields
     await RepositoryModel.findByIdAndUpdate(mongoRepoId, {

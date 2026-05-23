@@ -1,4 +1,5 @@
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
+import GithubIcon from "./GithubIcon";
 import { useEffect, useState, useRef } from "react";
 import API from "../api";
 import ProjectsTab from "./ProjectsTab";
@@ -44,6 +45,7 @@ import ForkButton from "./ForkButton";
 import ForkBanner from "./ForkBanner";
 import SyncForkButton from "./SyncForkButton";
 import ForkNetworkGraph from "./ForkNetworkGraph";
+import ObservabilityDashboard from "./ObservabilityDashboard";
 
 const socket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:5000", {
   withCredentials: true
@@ -270,9 +272,24 @@ export default function RepoDetails() {
     });
 
     // ─── Gitea real-time events ────────────────────────────────────────────────────
-    socket.on("commit_pushed", ({ branch, commitCount, lastMessage }) => {
-      console.log(`[Socket] ${commitCount} commit(s) pushed to ${branch}: ${lastMessage}`);
-      // Optionally refresh commit count badge in UI here
+    socket.on("commit_pushed", (data) => {
+      const { branch, commitCount, lastMessage, author, username } = data;
+      const displayUser = username || author || "Guest";
+
+      console.log({
+        stage: "socket_event_received_frontend",
+        giteaUser: username || author || null,
+        repoOwner: repoOwner,
+        commitAuthor: author || null,
+        webhookSender: username || author || null,
+        socketRoomUser: socket.id,
+        frontendUser: displayUser
+      });
+
+      console.log(`[Socket] ${commitCount} commit(s) pushed by ${displayUser} to ${branch}: ${lastMessage}`);
+      
+      // Automatically refresh the files, latest commit metadata, and branch trees from Gitea
+      fetchRepoAndFiles();
     });
 
     socket.on("branch_created", ({ branch }) => {
@@ -528,9 +545,7 @@ export default function RepoDetails() {
           <div className="flex flex-wrap items-center justify-between gap-6 pb-8">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-4 text-2xl font-bold">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#2f81f7] to-[#1f6feb] shadow-lg shadow-[#2f81f7]/20">
-                  <Book className="h-6 w-6 text-white" />
-                </div>
+                <GithubIcon className="h-10 w-10 rounded-xl mb-4" />
                 <div className="flex items-center gap-2">
                   <Link to="/dashboard" className="text-[var(--text-secondary)] hover:text-[#2f81f7] transition-colors font-medium">{repo.owner?.username || "Unknown"}</Link>
                   <span className="text-[var(--border-color)]">/</span>
@@ -586,6 +601,7 @@ export default function RepoDetails() {
               { id: 'code', icon: Code, label: 'Code', path: `/repo/${id}` },
               { id: 'issues', icon: MessageSquare, label: 'Issues', count: issueCount, path: `/repo/${id}/issues` },
               { id: 'pulls', icon: GitPullRequest, label: 'Pull requests', count: prCount, path: `/repo/${id}/pulls` },
+              { id: 'observability', icon: Activity, label: 'Observability' },
               { id: 'agents', icon: Terminal, label: 'Agents' },
               { id: 'actions', icon: Play, label: 'Actions' },
               { id: 'projects', icon: Layout, label: 'Projects' },
@@ -644,6 +660,10 @@ export default function RepoDetails() {
           <div className="max-w-7xl mx-auto">
             <SecurityTab repoId={id} />
           </div>
+        ) : activeTab === 'observability' ? (
+          <div className="max-w-7xl mx-auto">
+            <ObservabilityDashboard />
+          </div>
         ) : activeTab === 'insights' ? (
           <div className="max-w-7xl mx-auto">
             <InsightsTab repoId={id} />
@@ -684,24 +704,7 @@ export default function RepoDetails() {
 
                       {isCodeDropdownOpen && (
                         <div className="absolute right-0 mt-2 w-80 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-                          {/* Main Tabs */}
-                          <div className="flex border-b border-[var(--border-color)]">
-                            <button
-                              onClick={() => setCodeTab('local')}
-                              className={`flex-1 py-3 text-sm font-semibold transition-colors ${codeTab === 'local' ? 'border-b-2 border-[#2f81f7] text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                            >
-                              Local
-                            </button>
-                            <button
-                              onClick={() => setCodeTab('codespaces')}
-                              className={`flex-1 py-3 text-sm font-semibold transition-colors ${codeTab === 'codespaces' ? 'border-b-2 border-[#2f81f7] text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
-                            >
-                              Codespaces
-                            </button>
-                          </div>
-
-                          {codeTab === 'local' ? (
-                            <div className="p-4 space-y-4">
+                          <div className="p-4 space-y-4">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
                                   <Terminal className="h-4 w-4 text-[var(--text-secondary)]" />
@@ -745,23 +748,6 @@ export default function RepoDetails() {
                                 </p>
                               </div>
                             </div>
-                          ) : (
-                            <div className="p-6 text-center space-y-4">
-                              <h3 className="text-sm font-bold text-white">No codespaces</h3>
-                              <p className="text-xs text-slate-400">
-                                You don't have any codespaces with this repository checked out
-                              </p>
-                              <button className="w-full rounded-md bg-[#238636] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#2ea043] transition-all">
-                                Create codespace on main
-                              </button>
-                              <p className="text-[11px] text-indigo-400 hover:underline cursor-pointer">
-                                Learn more about codespaces...
-                              </p>
-                              <div className="pt-4 mt-2 border-t border-slate-800 text-[10px] text-slate-500">
-                                Codespace usage for this repository is paid for by <span className="font-bold">{repoOwner}</span>.
-                              </div>
-                            </div>
-                          )}
                         </div>
                       )}
                     </div>

@@ -61,22 +61,22 @@ export default function CreateRepo() {
   const licenseOptions = ["None", "MIT", "Apache 2.0", "GPLv3", "BSD 3-Clause", "Unlicense"];
 
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-200 pb-20 selection:bg-indigo-500/30">
+    <div className="min-h-screen bg-white text-gray-900 pb-20 selection:bg-indigo-500/30 dark:bg-[#030712] dark:text-slate-200">
       <div className="mx-auto max-w-4xl px-6 pt-12">
         <header className="mb-10 text-center">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-xl shadow-indigo-500/20 mb-4">
             <Code2 className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-4xl font-extrabold text-white tracking-tight">Create New Repository</h1>
+          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight dark:text-white">Create New Repository</h1>
           {orgId ? (
-            <p className="mt-3 text-base text-slate-400">
+            <p className="mt-3 text-base text-gray-600 dark:text-slate-400">
               Creating inside organization{" "}
-              <Link to={`/org/${orgId}`} className="text-indigo-400 font-semibold hover:underline">
+              <Link to={`/org/${orgId}`} className="text-indigo-600 font-semibold hover:underline dark:text-indigo-400">
                 {orgName || orgId}
               </Link>
             </p>
           ) : (
-            <p className="mt-3 text-lg text-slate-400">
+            <p className="mt-3 text-lg text-gray-600 dark:text-slate-400">
               A repository contains all your project files, including the revision history.
             </p>
           )}
@@ -92,7 +92,7 @@ export default function CreateRepo() {
                    <div className="h-8 w-8 rounded-full bg-indigo-500/10 flex items-center justify-center">
                       <span className="text-xs font-bold text-indigo-400">01</span>
                    </div>
-                   <h2 className="text-xl font-bold text-white">General Information</h2>
+                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">General Information</h2>
                 </div>
 
                 <div className="space-y-6">
@@ -123,7 +123,7 @@ export default function CreateRepo() {
                       <input
                         type="text"
                         required
-                        className="w-full rounded-xl border border-slate-800 bg-slate-950/50 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
+                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all dark:border-slate-800 dark:bg-slate-950/50 dark:text-white dark:placeholder-slate-600"
                         placeholder="e.g. my-awesome-app"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -138,7 +138,7 @@ export default function CreateRepo() {
                     <textarea
                       rows="3"
                       maxLength={350}
-                      className="w-full rounded-xl border border-slate-800 bg-slate-950/50 px-4 py-3 text-sm text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
+                      className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none dark:border-slate-800 dark:bg-slate-950/50 dark:text-white dark:placeholder-slate-600"
                       placeholder="Briefly describe your project..."
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
@@ -153,7 +153,7 @@ export default function CreateRepo() {
                    <div className="h-8 w-8 rounded-full bg-purple-500/10 flex items-center justify-center">
                       <span className="text-xs font-bold text-purple-400">02</span>
                    </div>
-                   <h2 className="text-xl font-bold text-white">Visibility & Access</h2>
+                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">Visibility & Access</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -167,10 +167,10 @@ export default function CreateRepo() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className={`font-bold ${isPublic ? "text-white" : "text-slate-300"}`}>Public</span>
+                          <span className={`font-bold ${isPublic ? "text-white" : "text-gray-700"}`}>Public</span>
                           {isPublic && <CheckCircle2 className="h-4 w-4 text-indigo-400" />}
                         </div>
-                        <p className="text-xs text-slate-500 mt-1 leading-relaxed">Anyone on the internet can see this project. You choose who can commit.</p>
+                        <p className="text-xs text-gray-600 mt-1 leading-relaxed dark:text-slate-500">Anyone on the internet can see this project. You choose who can commit.</p>
                       </div>
                    </button>
 
@@ -184,10 +184,10 @@ export default function CreateRepo() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className={`font-bold ${!isPublic ? "text-white" : "text-slate-300"}`}>Private</span>
+                          <span className={`font-bold ${!isPublic ? "text-white" : "text-gray-700"}`}>Private</span>
                           {!isPublic && <CheckCircle2 className="h-4 w-4 text-purple-400" />}
                         </div>
-                        <p className="text-xs text-slate-500 mt-1 leading-relaxed">You choose who can see and commit to this project.</p>
+                        <p className="text-xs text-gray-600 mt-1 leading-relaxed dark:text-slate-500">You choose who can see and commit to this project.</p>
                       </div>
                    </button>
                 </div>
@@ -201,16 +201,13 @@ export default function CreateRepo() {
                    <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
                       <span className="text-xs font-bold text-emerald-400">03</span>
                    </div>
-                   <h2 className="text-xl font-bold text-white">Initialize Project</h2>
+                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">Initialize Project</h2>
                 </div>
 
                 <div className="space-y-6">
                   {/* README toggle */}
                   <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800/50">
                     <div className="flex gap-3 items-center">
-                      <div className="h-8 w-8 rounded-lg bg-slate-800 flex items-center justify-center">
-                        <Plus className="h-4 w-4 text-slate-400" />
-                      </div>
                       <div>
                         <p className="text-sm font-semibold text-white">Initialize repository with README</p>
                         <p className="text-[10px] text-slate-500">Add a README file for documentation</p>
@@ -218,7 +215,7 @@ export default function CreateRepo() {
                     </div>
                     <div 
                         onClick={() => setAddReadme(!addReadme)}
-                        className={`h-6 w-11 rounded-full relative cursor-pointer transition-all ${addReadme ? "bg-emerald-500 shadow-lg shadow-emerald-500/20" : "bg-slate-800"}`}
+                        className={`h-6 w-11 rounded-full relative cursor-pointer transition-all ${addReadme ? "bg-indigo-600" : "bg-gray-300"}`}
                       >
                         <div className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${addReadme ? "left-6" : "left-1"}`}></div>
                      </div>
@@ -233,7 +230,7 @@ export default function CreateRepo() {
                     <select 
                       value={gitignore}
                       onChange={(e) => setGitignore(e.target.value)}
-                      className="w-full rounded-xl border border-slate-800 bg-slate-950/50 px-4 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none appearance-none cursor-pointer"
+                      className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none appearance-none cursor-pointer dark:border-slate-800 dark:bg-slate-950/50 dark:text-white"
                     >
                       {gitignoreOptions.map(opt => <option key={opt} value={opt} className="bg-slate-900">{opt === "None" ? "No .gitignore" : opt}</option>)}
                     </select>
@@ -248,7 +245,7 @@ export default function CreateRepo() {
                     <select 
                       value={license}
                       onChange={(e) => setLicense(e.target.value)}
-                      className="w-full rounded-xl border border-slate-800 bg-slate-950/50 px-4 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none appearance-none cursor-pointer"
+                      className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none appearance-none cursor-pointer dark:border-slate-800 dark:bg-slate-950/50 dark:text-white"
                     >
                       {licenseOptions.map(opt => <option key={opt} value={opt} className="bg-slate-900">{opt === "None" ? "No license" : opt}</option>)}
                     </select>
@@ -258,7 +255,7 @@ export default function CreateRepo() {
                     <button 
                       type="submit"
                       disabled={loading}
-                      className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 py-4 font-bold text-white shadow-xl shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100"
+                      className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 py-4 font-bold text-white shadow-xl shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 dark:shadow-purple-600/20"
                     >
                       {loading ? (
                         <div className="flex items-center justify-center gap-2">

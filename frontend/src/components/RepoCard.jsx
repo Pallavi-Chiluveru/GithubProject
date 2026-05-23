@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { Star, ChevronDown, GitBranch, Globe, Lock, Book } from "lucide-react";
+import lightLogo from "../assets/image.png";
+import darkLogo from "../assets/antigravity_logo_dark.png";
 
 export default function RepoCard({ repo }) {
   // Map languages to colors
@@ -20,6 +22,8 @@ export default function RepoCard({ repo }) {
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
+            <img src={lightLogo} className="block dark:hidden w-6 h-6 rounded-full" alt="logo" />
+            <img src={darkLogo} className="hidden dark:block w-6 h-6 rounded-full" alt="logo" />
             <Link 
               to={`/repo/${repo._id}`} 
               className="text-base font-bold text-[#f0f6fc] hover:text-[#ec4899] transition-colors"

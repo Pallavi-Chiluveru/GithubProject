@@ -79,7 +79,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <SidebarItem icon={GitPullRequest} label="All pull requests" to="/pulls" onClick={() => setIsOpen(false)} />
             <SidebarItem icon={BookOpen} label="All Repositories" to="/repos" onClick={() => setIsOpen(false)} />
             <SidebarItem icon={MessageSquare} label="Discussions" to="/discussions" onClick={() => setIsOpen(false)} />
-            <SidebarItem icon={Code2} label="Codespaces" to="/codespaces" onClick={() => setIsOpen(false)} />
+
             <SidebarItem icon={Layout} label="Spaces" to="/spaces" onClick={() => setIsOpen(false)} />
             <SidebarItem icon={Cpu} label="Copilot" to="/copilot" onClick={() => setIsOpen(false)} />
             <SidebarItem icon={Sparkles} label="Learn GitHub" to="/companion" onClick={() => setIsOpen(false)} />

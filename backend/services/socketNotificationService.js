@@ -37,11 +37,33 @@ export const notifyPushEvent = async (payload) => {
   const giteaRepoId = payload.repository?.id;
   if (!giteaRepoId || commits.length === 0) return;
 
+  const giteaUsername = payload.sender?.login || payload.pusher?.username || commits[0]?.author?.name || "Unknown";
+
+  console.log({
+    stage: "socket_emission_started",
+    giteaUser: giteaUsername,
+    repoOwner: payload.repository?.owner?.username || payload.repository?.owner?.login || null,
+    commitAuthor: commits[0]?.author?.name || null,
+    webhookSender: payload.sender?.login || null,
+    socketRoomUser: null,
+    frontendUser: null
+  });
+
   await emitToRepo(giteaRepoId, "commit_pushed", {
     branch,
     commitCount: commits.length,
     lastMessage: commits[0]?.message?.slice(0, 80) || "",
-    author: commits[0]?.author?.name || "Unknown",
+    author: giteaUsername,
+    username: giteaUsername,
+    timestamp: new Date().toISOString(),
+  });
+
+  await emitToRepo(giteaRepoId, "push-event", {
+    branch,
+    commitCount: commits.length,
+    lastMessage: commits[0]?.message?.slice(0, 80) || "",
+    author: giteaUsername,
+    username: giteaUsername,
     timestamp: new Date().toISOString(),
   });
 };

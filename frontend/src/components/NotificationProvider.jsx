@@ -30,10 +30,23 @@ export default function NotificationProvider({ children }) {
     });
 
     // ─── Gitea real-time Git events ───────────────────────────────────────────────
-    newSocket.on("commit_pushed", ({ branch, commitCount, author, lastMessage }) => {
+    newSocket.on("commit_pushed", (data) => {
+      const { branch, commitCount, author, username, lastMessage } = data;
+      const displayUser = username || author || "Guest";
+
+      console.log({
+        stage: "socket_event_notification_received",
+        giteaUser: username || author || null,
+        repoOwner: null,
+        commitAuthor: author || null,
+        webhookSender: username || author || null,
+        socketRoomUser: newSocket.id,
+        frontendUser: displayUser
+      });
+
       addToast({
         type: "GIT_PUSH",
-        message: `${author} pushed ${commitCount} commit(s) to ${branch}: "${lastMessage}"`,
+        message: `${displayUser} pushed ${commitCount} commit(s) to ${branch}: "${lastMessage}"`,
       });
     });
 

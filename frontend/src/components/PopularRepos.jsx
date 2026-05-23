@@ -12,8 +12,16 @@ const PopularRepos = ({ username }) => {
     const fetchRepos = async () => {
       try {
         const res = await API.get(`/repo-api/user/${username}`);
-        // For popular repos, we'll just show the top 6 updated ones for now
-        setRepos(res.data.slice(0, 6) || []);
+        // Sort repositories by stars and forks to determine popularity
+        const sorted = (res.data || []).sort((a, b) => {
+          const starsA = a.stars ?? a.starCount ?? 0;
+          const starsB = b.stars ?? b.starCount ?? 0;
+          if (starsB !== starsA) return starsB - starsA;
+          const forksA = a.forkCount ?? a.forks ?? 0;
+          const forksB = b.forkCount ?? b.forks ?? 0;
+          return forksB - forksA;
+        });
+        setRepos(sorted.slice(0, 4));
         setLoading(false);
       } catch (err) {
         console.error('Error fetching repos:', err);

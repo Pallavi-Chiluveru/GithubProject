@@ -71,3 +71,55 @@ activityApp.get("/contributions/:username", async (req, res) => {
     res.status(500).json({ message: "Error fetching contributions", error: err.message });
   }
 });
+
+/* GET OBSERVABILITY TELEMETRY */
+activityApp.get("/observability", verifyToken, async (req, res) => {
+  try {
+    const logs = await ActivityLogModel.find({ action: "commit_pushed" }).lean();
+    
+    let totalPushes = logs.length;
+    let mismatchCount = 0;
+    let staleSessionOverwrites = 0;
+    
+    const webhookSenders = new Set();
+    const displayedUsers = new Set();
+    const timeline = [];
+
+    for (const log of logs) {
+      const metadata = log.metadata || {};
+      if (metadata.identityMismatch) {
+        mismatchCount++;
+      }
+      if (metadata.staleSessionOverwrite) {
+        staleSessionOverwrites++;
+      }
+      
+      const giteaUser = metadata.giteaUser || log.giteaUsername || "Unknown";
+      const displayedUser = log.message.split(" pushed ")[0] || "Unknown";
+      
+      webhookSenders.add(giteaUser);
+      displayedUsers.add(displayedUser);
+      
+      timeline.push({
+        id: log._id,
+        timestamp: log.createdAt,
+        giteaUser,
+        commitAuthor: metadata.commitAuthor || "Unknown",
+        displayedUser,
+        isMismatch: !!metadata.identityMismatch,
+        message: log.message
+      });
+    }
+
+    res.status(200).json({
+      totalPushes,
+      mismatchCount,
+      staleSessionOverwrites,
+      webhookSenders: Array.from(webhookSenders),
+      displayedUsers: Array.from(displayedUsers),
+      timeline: timeline.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching observability stats", error: err.message });
+  }
+});

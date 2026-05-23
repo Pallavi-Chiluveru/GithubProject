@@ -111,8 +111,7 @@ export default function Navbar() {
     "/new-project": "New Project",
     "/org": "New Organization",
     "/import": "Import Repository",
-    "/codespaces": "Codespaces",
-    "/codespaces/new": "Create Codespace",
+
     "/gist": "New Gist",
     "/new-issue": "New Issue",
     "/notifications": "Notifications",
@@ -263,8 +262,6 @@ export default function Navbar() {
                   {[
                     { icon: <User size={16} />, label: "Profile", path: `/profile/${user.username}` },
                     { icon: <Book size={16} />, label: "Repositories", path: "/dashboard" },
-                    { icon: <Star size={16} />, label: "Stars", path: "/stars" },
-                    { icon: <Code size={16} />, label: "Gists", path: "/gist" },
                   ].map((item, i) => (
                     <Link
                       key={i}

@@ -55,13 +55,30 @@ const verifyGiteaSignature = (req, res, next) => {
   next();
 };
 
+/* ─── WEBHOOK IDENTITY VALIDATION MIDDLEWARE ────────────────────────────────── */
+/**
+ * Middleware: validates webhook identity consistency.
+ * Logs a warning if the webhook sender does not match the repository owner.
+ */
+const validateWebhookIdentity = (req, res, next) => {
+  const payload = req.body;
+  if (payload && payload.sender && payload.repository && payload.repository.owner) {
+    const sender = payload.sender.login || payload.sender.username;
+    const owner = payload.repository.owner.username || payload.repository.owner.login;
+    if (sender && owner && sender !== owner) {
+      console.warn(`[Webhook Validation] Potential identity mismatch detected: Webhook sender is "${sender}" but repository owner is "${owner}"`);
+    }
+  }
+  next();
+};
+
 /* ─── MAIN WEBHOOK RECEIVER ───────────────────────────────────────────────── */
 /**
  * POST /webhook-api/gitea
  * Receives all Gitea webhook events.
  * Event type is in the X-Gitea-Event header.
  */
-webhookApp.post("/gitea", verifyGiteaSignature, async (req, res) => {
+webhookApp.post("/gitea", verifyGiteaSignature, validateWebhookIdentity, async (req, res) => {
   // Acknowledge immediately — Gitea expects fast responses
   res.status(200).json({ ok: true });
 
@@ -69,7 +86,18 @@ webhookApp.post("/gitea", verifyGiteaSignature, async (req, res) => {
   const deliveryId = req.headers["x-gitea-delivery"];
   const payload = req.body;
 
-  console.log(`[Webhook] Received event: ${event} | delivery: ${deliveryId}`);
+  // 1. Structured debug logging for full end-to-end lifecycle tracing
+  console.log({
+    stage: "webhook_received",
+    event,
+    deliveryId,
+    giteaUser: payload.sender?.login || payload.sender?.username || null,
+    repoOwner: payload.repository?.owner?.username || payload.repository?.owner?.login || null,
+    commitAuthor: payload.head_commit?.author?.username || payload.commits?.[0]?.author?.name || null,
+    webhookSender: payload.sender?.login || payload.sender?.username || null,
+    socketRoomUser: null,
+    frontendUser: null
+  });
 
   try {
     switch (event) {

@@ -7,6 +7,8 @@
 import { ActivityLogModel } from "../models/ActivityLogModel.js";
 import { CommitModel } from "../models/CommitModel.js";
 import { RepositoryModel } from "../models/RepositoryModel.js";
+import { UserModel } from "../models/UserModel.js";
+import { syncRepoFromGitea } from "./repoSyncService.js";
 
 /**
  * Handles a "push" webhook event from Gitea.
@@ -23,6 +25,28 @@ export const handlePushEvent = async (payload) => {
 
     const branch = (payload.ref || "").replace("refs/heads/", "");
 
+    // Resolve authentic user details by looking up Mongoose UserModel by Gitea username
+    const giteaUsername = payload.sender?.login || payload.pusher?.username;
+    let resolvedUser = null;
+    if (giteaUsername) {
+      resolvedUser = await UserModel.findOne({
+        $or: [
+          { giteaUsername: giteaUsername },
+          { username: giteaUsername }
+        ]
+      });
+    }
+
+    console.log({
+      stage: "db_persistence_started",
+      giteaUser: giteaUsername || null,
+      repoOwner: repo.owner ? repo.owner.toString() : null,
+      commitAuthor: payload.commits?.[0]?.author?.name || null,
+      webhookSender: giteaUsername || null,
+      socketRoomUser: null,
+      frontendUser: null
+    });
+
     // Persist each commit to MongoDB as an analytics cache entry
     for (const commit of payload.commits || []) {
       await CommitModel.findOneAndUpdate(
@@ -34,6 +58,7 @@ export const handlePushEvent = async (payload) => {
           message: commit.message,
           authorName: commit.author?.name || "Unknown",
           authorEmail: commit.author?.email || "",
+          createdBy: resolvedUser ? resolvedUser._id : null, // Link resolved Mongoose user
           branch,
           filesChanged: (commit.added?.length || 0) + (commit.modified?.length || 0) + (commit.removed?.length || 0),
           addedLines: 0,     // Not available in push payload; enriched later if needed
@@ -46,12 +71,35 @@ export const handlePushEvent = async (payload) => {
     // Create a single activity log entry summarising the push
     if ((payload.commits || []).length > 0) {
       const firstCommit = payload.commits[0];
+      const isMismatch = giteaUsername && firstCommit.author?.name && (giteaUsername !== firstCommit.author?.name);
       await ActivityLogModel.create({
+        user: resolvedUser ? resolvedUser._id : repo.owner, // Link to actual user or repo owner
+        giteaUsername: giteaUsername || "",
+        pushedBy: giteaUsername || "",
         repoId: repo._id,
         action: "commit_pushed",
-        message: `${firstCommit.author?.name} pushed ${payload.commits.length} commit(s) to ${branch}: "${firstCommit.message.slice(0, 80)}"`,
+        message: `${giteaUsername || firstCommit.author?.name || "Unknown"} pushed ${payload.commits.length} commit(s) to ${branch}: "${firstCommit.message.slice(0, 80)}"`,
+        metadata: {
+          giteaUser: giteaUsername || null,
+          commitAuthor: firstCommit.author?.name || null,
+          identityMismatch: !!isMismatch,
+          staleSessionOverwrite: false
+        }
       });
     }
+
+    // Repository Sync Validation: Fetch latest repo metadata from Gitea API after every push
+    await syncRepoFromGitea(repo._id);
+
+    console.log({
+      stage: "db_persistence_completed",
+      giteaUser: giteaUsername || null,
+      repoOwner: repo.owner ? repo.owner.toString() : null,
+      commitAuthor: payload.commits?.[0]?.author?.name || null,
+      webhookSender: giteaUsername || null,
+      socketRoomUser: null,
+      frontendUser: null
+    });
 
     console.log(`[Activity] Push event processed for repo: ${repo.name}`);
   } catch (err) {
@@ -75,9 +123,20 @@ export const handlePREvent = async (payload) => {
     const pr = payload.pull_request;
     if (!pr) return;
 
+    const giteaUsername = payload.sender?.login || pr.user?.login;
+    let resolvedUser = null;
+    if (giteaUsername) {
+      resolvedUser = await UserModel.findOne({
+        $or: [
+          { giteaUsername: giteaUsername },
+          { username: giteaUsername }
+        ]
+      });
+    }
+
     let logMessage = "";
     if (action === "opened") {
-      logMessage = `${pr.user?.login} opened PR #${pr.number}: "${pr.title}"`;
+      logMessage = `${giteaUsername || pr.user?.login} opened PR #${pr.number}: "${pr.title}"`;
     } else if (action === "closed" && pr.merged) {
       logMessage = `PR #${pr.number} "${pr.title}" was merged`;
     } else if (action === "closed") {
@@ -87,6 +146,9 @@ export const handlePREvent = async (payload) => {
     }
 
     await ActivityLogModel.create({
+      user: resolvedUser ? resolvedUser._id : repo.owner,
+      giteaUsername: giteaUsername || "",
+      pushedBy: giteaUsername || "",
       repoId: repo._id,
       action: action === "opened" ? "pr_created" : pr.merged ? "pr_merged" : "pr_closed",
       message: logMessage,
@@ -113,6 +175,17 @@ export const handleCreateEvent = async (payload) => {
     const refType = payload.ref_type; // "branch" | "tag"
     const refName = payload.ref;
 
+    const giteaUsername = payload.sender?.login;
+    let resolvedUser = null;
+    if (giteaUsername) {
+      resolvedUser = await UserModel.findOne({
+        $or: [
+          { giteaUsername: giteaUsername },
+          { username: giteaUsername }
+        ]
+      });
+    }
+
     if (refType === "branch") {
       // Add branch to MongoDB cache
       if (!repo.branches.includes(refName)) {
@@ -121,9 +194,12 @@ export const handleCreateEvent = async (payload) => {
       }
 
       await ActivityLogModel.create({
+        user: resolvedUser ? resolvedUser._id : repo.owner,
+        giteaUsername: giteaUsername || "",
+        pushedBy: giteaUsername || "",
         repoId: repo._id,
         action: "branch_created",
-        message: `${payload.sender?.login} created branch "${refName}"`,
+        message: `${giteaUsername || payload.sender?.login || "Unknown"} created branch "${refName}"`,
       });
     }
 
@@ -148,15 +224,29 @@ export const handleDeleteEvent = async (payload) => {
     const refType = payload.ref_type;
     const refName = payload.ref;
 
+    const giteaUsername = payload.sender?.login;
+    let resolvedUser = null;
+    if (giteaUsername) {
+      resolvedUser = await UserModel.findOne({
+        $or: [
+          { giteaUsername: giteaUsername },
+          { username: giteaUsername }
+        ]
+      });
+    }
+
     if (refType === "branch") {
       // Remove branch from MongoDB cache
       repo.branches = repo.branches.filter(b => b !== refName);
       await repo.save();
 
       await ActivityLogModel.create({
+        user: resolvedUser ? resolvedUser._id : repo.owner,
+        giteaUsername: giteaUsername || "",
+        pushedBy: giteaUsername || "",
         repoId: repo._id,
         action: "branch_deleted",
-        message: `${payload.sender?.login} deleted branch "${refName}"`,
+        message: `${giteaUsername || payload.sender?.login || "Unknown"} deleted branch "${refName}"`,
       });
     }
 

@@ -113,7 +113,7 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
 
   const menuItems = [
     { icon: <CircleDot size={16} />, label: "New issue", path: "/new-issue" },
-    { icon: <Book size={16} />, label: "New repository", path: "/create-repo" },
+    { icon: <GithubIcon className="w-4 h-4" />, label: "New repository", path: "/create-repo" },
     { type: "divider" },
     { icon: <Building size={16} />, label: "New organization", path: "/org" },
     { icon: <Layout size={16} />, label: "New project", path: "/new-project" },
@@ -317,8 +317,6 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
               {[
                 { icon: <User size={16} />, label: "Profile", path: `/profile/${user.username}` },
                 { icon: <Book size={16} />, label: "Repositories", path: "/repos" },
-                { icon: <Star size={16} />, label: "Stars", path: "/stars" },
-                { icon: <Code size={16} />, label: "Gists", path: "/gist" },
               ].map((item, i) => (
                 <Link
                   key={i}
@@ -335,8 +333,6 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
 
               {[
                 { icon: <Building size={16} />, label: "Organizations", path: "/settings/organizations" },
-                { icon: <Globe size={16} />, label: "Enterprises", path: "/enterprises" },
-                { icon: <Heart size={16} />, label: "Sponsors", path: "/sponsors" },
               ].map((item, i) => (
                 <Link
                   key={i}
@@ -353,10 +349,8 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
 
               {[
                 { icon: <Settings size={16} />, label: "Settings", path: "/settings" },
-                { icon: <Repeat size={16} />, label: "Copilot settings", path: "/copilot" },
                 { icon: <FlaskConical size={16} />, label: "Feature preview", path: "/features", badge: "New" },
                 { icon: <Paintbrush size={16} />, label: "Appearance", path: "/appearance" },
-                { icon: <Accessibility size={16} />, label: "Accessibility", path: "/accessibility" },
                 { icon: <UploadCloud size={16} />, label: "Try Enterprise", path: "/enterprise-trial", badge: "Free" },
               ].map((item, i) => (
                 <Link
