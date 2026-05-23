@@ -1,9 +1,10 @@
 import { Router } from "express";
+import Groq from "groq-sdk";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { RepositoryModel } from "../models/RepositoryModel.js";
 import { UserModel } from "../models/UserModel.js";
 import { encryptToken, decryptToken } from "../utils/encrypt.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+
 import crypto from "crypto";
 
 import {
@@ -499,14 +500,15 @@ router.post("/:id/settings/models/config", verifyToken, checkRepoAccess, require
 
 router.post("/:id/settings/models/chat", verifyToken, checkRepoAccess, async (req, res) => {
   try {
-    const { prompt, provider = "gemini" } = req.body;
+    const { prompt, provider = "groq" } = req.body;
     if (!prompt) {
       return res.status(400).json({ message: "Prompt is required" });
     }
 
     const connection = await ModelConnection.findOne({ repoId: req.repo._id, provider, isActive: true });
 
-    let apiKey = process.env.GEMINI_API_KEY;
+    // Use the saved connection key first, fall back to system GROQ_API_KEY
+    let apiKey = process.env.GROQ_API_KEY;
     if (connection) {
       apiKey = decryptToken(connection.apiKey);
     }
@@ -518,14 +520,26 @@ router.post("/:id/settings/models/chat", verifyToken, checkRepoAccess, async (re
     }
 
     let responseText = "";
-    if (provider === "gemini") {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent(prompt);
-      responseText = result.response.text();
+    if (provider === "groq" || provider === "grok" || provider === "gemini") {
+      // Use official Groq SDK — llama-3.1-8b-instant is free and fast
+      const groqClient = new Groq({ apiKey });
+
+      const completion = await groqClient.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful coding assistant. Be concise and provide code blocks if requested.",
+          },
+          { role: "user", content: prompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 1024,
+      });
+      responseText = completion.choices[0]?.message?.content ?? "";
     } else {
-      // Fallback/mock for other models in the playground
-      responseText = `[Mock Response for ${provider}] Received prompt: "${prompt}". This model is fully functional inside Antigravity!`;
+      // Fallback/mock for other providers in the playground
+      responseText = `[Mock Response for ${provider}] Received prompt: "${prompt}". This model integration is coming soon!`;
     }
 
     await PromptHistory.create({
@@ -539,6 +553,7 @@ router.post("/:id/settings/models/chat", verifyToken, checkRepoAccess, async (re
 
     res.status(200).json({ response: responseText });
   } catch (err) {
+    console.error("Settings Chat API Error:", err);
     res.status(500).json({ message: err.message });
   }
 });

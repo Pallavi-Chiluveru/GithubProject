@@ -7,15 +7,21 @@
 
 :root {
   --bg-primary: #ffffff;
-  --bg-secondary: #f6f8fa;
-  --bg-tertiary: #eff1f3;
+  --bg-secondary: #f9fafb;     /* Vercel style light gray page background */
+  --bg-tertiary: #f3f4f6;
   --bg-elevated: #ffffff;
-  --text-primary: #1f2328;
-  --text-secondary: #656d76;
-  --border-color: #d0d7de;
-  --radial-1: rgba(59, 130, 246, 0.02);
-  --radial-2: rgba(139, 92, 246, 0.02);
-  --selection-bg: #4f46e5;
+  --text-primary: #111827;      /* Super sharp slate-900 */
+  --text-secondary: #4b5563;    /* Clear slate-600 */
+  --text-muted: #9ca3af;
+  --border-color: #e5e7eb;       /* Elegant, clean gray border */
+  --sidebar-bg: #ffffff;        /* Pure white sidebar with clear border */
+  --card-bg: #ffffff;           /* Crisp card backgrounds */
+  --card-border: #f3f4f6;       /* Faint border to separate cards */
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(99, 102, 241, 0.08);
+  --radial-1: rgba(99, 102, 241, 0.01);
+  --radial-2: rgba(139, 92, 246, 0.01);
+  --selection-bg: #6366f1;
 }
 
 .dark-theme {
@@ -25,7 +31,13 @@
   --bg-elevated: #21262d;
   --text-primary: #f3f4f6;
   --text-secondary: #8b949e;
+  --text-muted: #484f58;
   --border-color: #30363d;
+  --sidebar-bg: #0d1117;
+  --card-bg: #0d1117;
+  --card-border: #30363d;
+  --card-shadow: none;
+  --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
   --radial-1: rgba(59, 130, 246, 0.05);
   --radial-2: rgba(139, 92, 246, 0.05);
   --selection-bg: #6366f1;
@@ -63,6 +75,38 @@ html:not(.dark-theme) [class*="border-slate-900"],
 html:not(.dark-theme) [class*="divide-slate-800"],
 html:not(.dark-theme) [class*="divide-[#30363d]"] {
   border-color: var(--border-color) !important;
+}
+
+/* Neutralize dark gradient stops (from-/via-/to-) in light mode */
+html:not(.dark-theme) [class*="from-[#0d1117]"],
+html:not(.dark-theme) [class*="from-[#030712]"],
+html:not(.dark-theme) [class*="from-[#010409]"],
+html:not(.dark-theme) [class*="from-[#161b22]"],
+html:not(.dark-theme) [class*="from-black"],
+html:not(.dark-theme) [class*="from-slate-900"],
+html:not(.dark-theme) [class*="from-slate-950"] {
+  --tw-gradient-from: var(--bg-primary) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+html:not(.dark-theme) [class*="via-[#0d1117]"],
+html:not(.dark-theme) [class*="via-[#030712]"],
+html:not(.dark-theme) [class*="via-[#010409]"],
+html:not(.dark-theme) [class*="via-[#161b22]"],
+html:not(.dark-theme) [class*="via-black"],
+html:not(.dark-theme) [class*="via-slate-900"],
+html:not(.dark-theme) [class*="via-slate-950"] {
+  --tw-gradient-via: var(--bg-primary) !important;
+}
+
+html:not(.dark-theme) [class*="to-[#0d1117]"],
+html:not(.dark-theme) [class*="to-[#030712]"],
+html:not(.dark-theme) [class*="to-[#010409]"],
+html:not(.dark-theme) [class*="to-[#161b22]"],
+html:not(.dark-theme) [class*="to-black"],
+html:not(.dark-theme) [class*="to-slate-900"],
+html:not(.dark-theme) [class*="to-slate-950"] {
+  --tw-gradient-to: var(--bg-primary) !important;
 }
 
 html:not(.dark-theme) [class*="text-[#f0f6fc]"],
@@ -178,4 +222,588 @@ a, button, input, select {
 
 .animate-spin-slow {
   animation: spin-slow 8s linear infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR — LIGHT MODE THEME
+   All rules scoped to html:not(.dark-theme) → dark mode untouched
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Default nav item ── */
+html:not(.dark-theme) .sidebar-nav-item {
+  color: #374151;                        /* slate-700 — readable dark text */
+  border-radius: 10px;
+  padding-left: 12px;
+  padding-right: 12px;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+html:not(.dark-theme) .sidebar-nav-item:hover {
+  background-color: #f1f5f9;            /* soft slate-100 hover */
+  color: #0f172a;                        /* slate-900 — stronger on hover */
+}
+
+/* ── Default icon ── */
+html:not(.dark-theme) .sidebar-icon {
+  color: #94a3b8;                        /* slate-400 — soft neutral */
+  transition: color 0.15s ease;
+}
+
+html:not(.dark-theme) .sidebar-nav-item:hover .sidebar-icon {
+  color: #475569;                        /* slate-600 — visible on hover */
+}
+
+/* ── Active nav item ── */
+html:not(.dark-theme) .sidebar-nav-item--active {
+  background-color: #eff6ff;            /* blue-50 — soft blue tint */
+  color: #1d4ed8;                        /* blue-700 — strong readable accent */
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.15);
+  font-weight: 600;
+}
+
+html:not(.dark-theme) .sidebar-nav-item--active:hover {
+  background-color: #dbeafe;            /* blue-100 on hover of active */
+}
+
+/* ── Active icon ── */
+html:not(.dark-theme) .sidebar-icon--active {
+  color: #2563eb;                        /* blue-600 — vivid accent */
+}
+
+/* ── Active left indicator bar ── */
+html:not(.dark-theme) .sidebar-active-bar {
+  background-color: #3b82f6;            /* blue-500 */
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.45);
+}
+
+/* ── Mobile overlay — soft light backdrop ── */
+html:not(.dark-theme) .mobile-overlay {
+  background-color: rgba(15, 23, 42, 0.25);   /* slate-900 at 25% — soft dim */
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR — DARK MODE FALLBACK  (restore original dark appearance)
+   ═══════════════════════════════════════════════════════════════ */
+
+html.dark-theme .sidebar-nav-item {
+  color: #c9d1d9;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+html.dark-theme .sidebar-nav-item:hover {
+  background-color: #21262d;
+  color: #ffffff;
+}
+
+html.dark-theme .sidebar-icon {
+  color: #8b949e;
+  transition: color 0.15s ease;
+}
+
+html.dark-theme .sidebar-nav-item:hover .sidebar-icon {
+  color: #ffffff;
+}
+
+html.dark-theme .sidebar-nav-item--active {
+  background-color: #1f242c;
+  color: #ffffff;
+}
+
+html.dark-theme .sidebar-icon--active {
+  color: #ffffff;
+}
+
+html.dark-theme .sidebar-active-bar {
+  background-color: #2f81f7;
+  box-shadow: 0 0 8px rgba(47, 129, 247, 0.5);
+}
+
+html.dark-theme .mobile-overlay {
+  background-color: rgba(0, 0, 0, 0.60);
+}
+
+/* ==========================================================================
+   LEARN GITHUB (COMPANION) — LIGHT MODE OVERRIDES
+   ========================================================================== */
+.companion-light-mode {
+  background-color: #f8fafc !important;
+  color: #334155 !important;
+}
+
+/* 1. Base Containers & Backgrounds */
+.companion-light-mode main {
+  background-color: #f8fafc !important;
+  color: #334155 !important;
+}
+
+.companion-light-mode header {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.companion-light-mode header span,
+.companion-light-mode header button {
+  color: #475569 !important;
+}
+
+.companion-light-mode header .text-white {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+.companion-light-mode header button {
+  border-color: #cbd5e1 !important;
+  background-color: #f8fafc !important;
+}
+
+.companion-light-mode header button:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+/* 2. Sidebar Styling in Light Mode */
+.companion-light-mode aside {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.02) !important;
+}
+
+.companion-light-mode aside > div:first-child {
+  border-color: #e2e8f0 !important;
+  background-color: #ffffff !important;
+}
+
+.companion-light-mode aside h2 {
+  color: #0f172a !important;
+}
+
+.companion-light-mode aside button[onClick] {
+  color: #64748b !important;
+}
+
+.companion-light-mode aside button[onClick]:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Sidebar Search Input */
+.companion-light-mode aside input {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.companion-light-mode aside input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.companion-light-mode aside input:focus {
+  border-color: #3b82f6 !important;
+  background-color: #ffffff !important;
+}
+
+.companion-light-mode aside .lucide-search {
+  color: #94a3b8 !important;
+}
+
+/* Sidebar Navigation Items */
+.companion-light-mode aside nav button {
+  color: #475569 !important;
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+.companion-light-mode aside nav button:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.companion-light-mode aside nav button:hover .lucide {
+  color: #334155 !important;
+}
+
+/* Active State Sidebar Item */
+.companion-light-mode aside nav button.text-\[\#58A6FF\] {
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe !important;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.05) !important;
+  font-weight: 600 !important;
+}
+
+.companion-light-mode aside nav button.text-\[\#58A6FF\] .lucide {
+  color: #2563eb !important;
+}
+
+.companion-light-mode aside nav button.text-\[\#58A6FF\] div {
+  background-color: #2563eb !important;
+}
+
+/* Sidebar Exit Button Container */
+.companion-light-mode aside > div:last-child {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.companion-light-mode aside > div:last-child button {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #475569 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.companion-light-mode aside > div:last-child button:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* 3. Typography & Titles */
+.companion-light-mode h1,
+.companion-light-mode h2,
+.companion-light-mode h3,
+.companion-light-mode h4,
+.companion-light-mode h5,
+.companion-light-mode h6,
+.companion-light-mode strong,
+.companion-light-mode b {
+  color: #0f172a !important;
+}
+
+.companion-light-mode p,
+.companion-light-mode li,
+.companion-light-mode span:not(.bg-gradient-to-r) {
+  color: #334155 !important;
+}
+
+.companion-light-mode .text-\[\#8b949e\],
+.companion-light-mode .text-slate-400,
+.companion-light-mode .text-slate-300 {
+  color: #475569 !important;
+}
+
+.companion-light-mode .text-white {
+  color: #0f172a !important;
+}
+
+/* 4. Hero Banner Overrides */
+.companion-light-mode .bg-gradient-to-br.from-slate-900 {
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%) !important;
+  border: 1px solid #bfdbfe !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Hero Badge Overrides */
+.companion-light-mode .border-white\/10 {
+  border-color: #cbd5e1 !important;
+}
+
+.companion-light-mode .bg-white\/5 {
+  background-color: #f1f5f9 !important;
+}
+
+.companion-light-mode .text-[#8b949e] {
+  color: #475569 !important;
+}
+
+/* Clean Hero Heading Gradient for Light Mode */
+.companion-light-mode h1.bg-gradient-to-r {
+  background-image: linear-gradient(to right, #1e3a8a, #3b82f6, #6d28d9) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* Hero Badges (e.g. Beginner Friendly, Interactive) */
+.companion-light-mode span[class*="bg-blue-400/10"],
+.companion-light-mode span[class*="bg-purple-400/10"],
+.companion-light-mode span[class*="bg-green-400/10"] {
+  background-color: #eff6ff !important;
+  color: #1e40af !important;
+  border: 1px solid #dbeafe !important;
+}
+
+.companion-light-mode span[class*="bg-purple-400/10"] {
+  background-color: #faf5ff !important;
+  color: #6b21a8 !important;
+  border: 1px solid #f3e8ff !important;
+}
+
+.companion-light-mode span[class*="bg-green-400/10"] {
+  background-color: #f0fdf4 !important;
+  color: #166534 !important;
+  border: 1px solid #dcfce7 !important;
+}
+
+/* 5. Content Cards & Boxes */
+.companion-light-mode [class*="bg-[#1C2128]"],
+.companion-light-mode [class*="bg-[#161B22]"],
+.companion-light-mode [class*="bg-[#171B22]"],
+.companion-light-mode [class*="bg-[#0D1117]"]:not(main):not(div.flex) {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Inner card boxes and sections (such as grids) */
+.companion-light-mode [class*="bg-black/60"],
+.companion-light-mode [class*="bg-black/40"],
+.companion-light-mode [class*="bg-black/30"] {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.companion-light-mode .border-white\/5 {
+  border-color: #e2e8f0 !important;
+}
+
+.companion-light-mode .hover\:border-\[\#58A6FF\]\/30:hover {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.08) !important;
+}
+
+/* 6. Code Snippets & Command Terminals */
+.companion-light-mode code,
+.companion-light-mode pre {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.companion-light-mode .font-mono {
+  background-color: #f8fafc !important;
+  color: #334155 !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Highlight codes */
+.companion-light-mode .text-blue-400 {
+  color: #2563eb !important;
+}
+
+.companion-light-mode .text-purple-400 {
+  color: #7c3aed !important;
+}
+
+.companion-light-mode .text-green-400 {
+  color: #16a34a !important;
+}
+
+.companion-light-mode .text-yellow-400 {
+  color: #d97706 !important;
+}
+
+.companion-light-mode .text-red-400 {
+  color: #dc2626 !important;
+}
+
+/* Copy Buttons */
+.companion-light-mode button[onClick*="handleCopy"] {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.companion-light-mode button[onClick*="handleCopy"]:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* 7. Markdown Content Area Styling */
+.companion-light-mode .prose {
+  color: #334155 !important;
+}
+
+.companion-light-mode .prose h1,
+.companion-light-mode .prose h2,
+.companion-light-mode .prose h3,
+.companion-light-mode .prose h4 {
+  color: #0f172a !important;
+}
+
+.companion-light-mode .prose code {
+  background-color: #f1f5f9 !important;
+  color: #b91c1c !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+}
+
+.companion-light-mode .prose pre {
+  background-color: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 1rem !important;
+  border-radius: 8px !important;
+}
+
+.companion-light-mode .prose pre code {
+  background-color: transparent !important;
+  color: #1e293b !important;
+  padding: 0 !important;
+}
+
+.companion-light-mode .prose ul li::marker {
+  color: #3b82f6 !important;
+}
+
+/* 8. Video Section Overrides */
+.companion-light-mode iframe {
+  border-color: #cbd5e1 !important;
+}
+
+.companion-light-mode button.bg-white\/5.hover\:bg-white\/10 {
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.companion-light-mode button.bg-white\/5.hover\:bg-white\/10:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* 9. FAQs & Details Accordions */
+.companion-light-mode details {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+}
+
+.companion-light-mode summary {
+  color: #0f172a !important;
+}
+
+.companion-light-mode summary:hover span {
+  color: #2563eb !important;
+}
+
+.companion-light-mode details div[class*="border-t"] {
+  border-color: #e2e8f0 !important;
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+}
+
+/* 10. Nav / Navigation Footer Buttons */
+.companion-light-mode div.border-t.border-white\/5 {
+  border-color: #e2e8f0 !important;
+}
+
+.companion-light-mode button.text-\[\#8b949e\].hover\:text-white {
+  color: #475569 !important;
+}
+
+.companion-light-mode button.text-\[\#8b949e\].hover\:text-white:hover {
+  color: #0f172a !important;
+}
+
+.companion-light-mode button.text-\[\#58A6FF\].hover\:text-\[\#58A6FF\]\/80 {
+  color: #2563eb !important;
+}
+
+.companion-light-mode button.text-\[\#58A6FF\].hover\:text-\[\#58A6FF\]\/80:hover {
+  color: #1d4ed8 !important;
+}
+
+/* 11. Final CTA Section (Orange/Yellow Banner) - make contrast robust */
+.companion-light-mode section.bg-gradient-to-br.from-yellow-500.to-orange-600 {
+  box-shadow: 0 10px 30px rgba(234, 88, 12, 0.15) !important;
+}
+
+/* 12. Floating AI Assistant Chat Panel Override */
+.companion-light-mode .fixed.bottom-8.right-8 .absolute {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.companion-light-mode .fixed.bottom-8.right-8 h4 {
+  color: #0f172a !important;
+}
+
+.companion-light-mode .fixed.bottom-8.right-8 span.text-green-400 {
+  color: #16a34a !important;
+}
+
+.companion-light-mode .fixed.bottom-8.right-8 button.hover\:bg-white\/5 {
+  color: #64748b !important;
+}
+
+.companion-light-mode .fixed.bottom-8.right-8 button.hover\:bg-white\/5:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Chat Messages Area background */
+.companion-light-mode .fixed.bottom-8.right-8 div.custom-scrollbar.bg-\[\#0d1117\] {
+  background-color: #f8fafc !important;
+}
+
+/* Chat bubble: bot */
+.companion-light-mode .fixed.bottom-8.right-8 div.bg-\[\#1C2128\] {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+/* Chat bubble: user */
+.companion-light-mode .fixed.bottom-8.right-8 div.bg-\[\#58A6FF\] {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+/* Chat inputs and actions area */
+.companion-light-mode .fixed.bottom-8.right-8 form.bg-\[\#1C2128\] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.companion-light-mode .fixed.bottom-8.right-8 form input {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.companion-light-mode .fixed.bottom-8.right-8 form input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.companion-light-mode .fixed.bottom-8.right-8 form input:focus {
+  border-color: #3b82f6 !important;
+  background-color: #ffffff !important;
+}
+
+/* Floating button overrides */
+.companion-light-mode button.w-14.h-14.bg-white {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+.companion-light-mode button.w-14.h-14.bg-\[\#58A6FF\] {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.companion-light-mode button.w-14.h-14.bg-\[\#58A6FF\]:hover {
+  background-color: #1d4ed8 !important;
+}
+
+/* Dark Mode cleanup: keep background style boundaries clean */
+.companion-light-mode .bg-blue-500\/\[0\.03\] {
+  background-color: rgba(59, 130, 246, 0.04) !important;
+}
+.companion-light-mode .bg-purple-500\/\[0\.03\] {
+  background-color: rgba(139, 92, 246, 0.04) !important;
+}
+.companion-light-mode .bg-green-500\/\[0\.03\] {
+  background-color: rgba(34, 197, 94, 0.04) !important;
+}
+.companion-light-mode .bg-orange-500\/\[0\.03\] {
+  background-color: rgba(249, 115, 22, 0.04) !important;
+}
+.companion-light-mode .bg-red-500\/\[0\.03\] {
+  background-color: rgba(239, 68, 68, 0.04) !important;
+}
+.companion-light-mode .bg-yellow-500\/\[0\.03\] {
+  background-color: rgba(234, 179, 8, 0.04) !important;
 }

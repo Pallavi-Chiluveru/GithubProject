@@ -158,8 +158,8 @@ export default function Dashboard() {
                   </button>
 
                   {orgs.map(org => (
-                    <button 
-                      key={org._id} 
+                    <button
+                      key={org._id}
                       onClick={() => navigate(`/org/${org._id}`)}
                       className="flex items-center gap-3 w-full px-3 py-2 rounded-md hover:bg-[var(--bg-secondary)] text-left group"
                     >
@@ -179,7 +179,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="space-y-2 pt-2 border-t border-[var(--border-color)]">
-                  <button 
+                  <button
                     onClick={() => { navigate("/settings/organizations"); setIsOrgDropdownOpen(false); }}
                     className="flex items-center justify-center gap-2 w-full py-2 rounded-md border border-[var(--border-color)] bg-[var(--bg-primary)] text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors"
                   >
@@ -198,21 +198,21 @@ export default function Dashboard() {
 
           {/* Navigation Section */}
           <div className="space-y-1 mb-6 px-2">
-            <button 
+            <button
               onClick={() => navigate('/dashboard')}
               className="flex items-center gap-3 w-full px-3 py-2 rounded-md hover:bg-[var(--bg-tertiary)] text-xs font-semibold text-[var(--text-primary)] transition-all"
             >
               <Building className="h-4 w-4 text-[var(--text-secondary)]" />
               Home
             </button>
-            <button 
+            <button
               onClick={() => navigate('/spaces')}
               className="flex items-center gap-3 w-full px-3 py-2 rounded-md hover:bg-[var(--bg-tertiary)] text-xs font-semibold text-[var(--text-primary)] transition-all"
             >
               <Layout className="h-4 w-4 text-[var(--text-secondary)]" />
               Spaces
             </button>
-            <button 
+            <button
               onClick={() => navigate('/agent')}
               className="flex items-center gap-3 w-full px-3 py-2 rounded-md hover:bg-[var(--bg-tertiary)] text-xs font-semibold text-[var(--text-primary)] transition-all"
             >
@@ -283,7 +283,7 @@ export default function Dashboard() {
               <div className="flex items-center gap-4">
                 <AskDropdown isCompact={true} />
                 <div className="relative">
-                  <button 
+                  <button
                     onClick={() => setShowRepoDropdown(!showRepoDropdown)}
                     className="flex items-center gap-1.5 text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                   >
@@ -345,7 +345,7 @@ export default function Dashboard() {
           <footer className="mt-20 border-t border-[var(--border-color)] py-10 transition-all">
             <div className="flex flex-wrap items-center gap-6 text-xs text-[var(--text-secondary)]">
               <Github className="h-5 w-5 opacity-50" />
-              <span>© 2026 antigravity.</span>
+              <span>© 2026 CodeForge.</span>
               <span className="hover:text-[#2f81f7] cursor-pointer">Terms</span>
               <span className="hover:text-[#2f81f7] cursor-pointer">Privacy</span>
               <span className="hover:text-[#2f81f7] cursor-pointer">Security</span>

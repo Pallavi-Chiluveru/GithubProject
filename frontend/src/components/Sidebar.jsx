@@ -1,17 +1,17 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, 
-  Home, 
-  CircleDot, 
-  GitPullRequest, 
-  BookOpen, 
-  Layout, 
-  MessageSquare, 
-  Terminal, 
-  Cpu, 
-  Compass, 
-  ShoppingBag, 
+import {
+  X,
+  Home,
+  CircleDot,
+  GitPullRequest,
+  BookOpen,
+  Layout,
+  MessageSquare,
+  Terminal,
+  Cpu,
+  Compass,
+  ShoppingBag,
   Library,
   Code2,
   Sparkles,
@@ -56,24 +56,24 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         animate={isOpen ? "open" : "closed"}
         exit="closed"
         variants={sidebarVariants}
-        className="fixed top-0 left-0 h-screen w-full sm:w-[320px] bg-[var(--bg-primary)] border-r border-[var(--border-color)] z-50 flex flex-col shadow-2xl transition-colors"
+        className="fixed top-0 left-0 h-screen w-full sm:w-[320px] bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] z-50 flex flex-col shadow-2xl transition-colors duration-300"
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between px-4 py-4 sticky top-0 bg-[var(--bg-primary)] z-10 border-b border-[var(--border-color)]">
-          <div className="flex items-center gap-2">
-            <GithubIcon className="w-8 h-8 object-contain" />
+        <div className="flex items-center justify-between px-5 py-4 sticky top-0 bg-[var(--sidebar-bg)] z-10 border-b border-[var(--border-color)]">
+          <div className="flex items-center gap-2 pl-1">
+            <GithubIcon className="h-9 object-contain" />
           </div>
-          <button 
+          <button
             onClick={() => setIsOpen(false)}
-            className="p-1.5 hover:bg-[#21262d] rounded-md text-[#8b949e] hover:text-white transition-colors"
+            className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all duration-200"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Sidebar Content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar pt-4">
-          <div className="space-y-0.5 px-2">
+        <div className="flex-1 overflow-y-auto custom-scrollbar pt-5">
+          <div className="space-y-1 px-3">
             <SidebarItem icon={Home} label="Home" to="/dashboard" onClick={() => setIsOpen(false)} />
             <SidebarItem icon={CircleDot} label="All issues" to="/issues" onClick={() => setIsOpen(false)} />
             <SidebarItem icon={GitPullRequest} label="All pull requests" to="/pulls" onClick={() => setIsOpen(false)} />
@@ -84,7 +84,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <SidebarItem icon={Cpu} label="Copilot" to="/copilot" onClick={() => setIsOpen(false)} />
             <SidebarItem icon={Sparkles} label="Learn GitHub" to="/companion" onClick={() => setIsOpen(false)} />
           </div>
-
         </div>
       </motion.aside>
     </>

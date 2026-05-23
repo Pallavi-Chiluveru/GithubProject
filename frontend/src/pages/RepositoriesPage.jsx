@@ -34,22 +34,46 @@ import { useNavigate } from 'react-router-dom';
 import TopNavbar from '../components/TopNavbar';
 import Sidebar from '../components/Sidebar';
 import API from '../api';
+import { useTheme } from '../theme/ThemeContext';
 
 
-const SidebarItem = ({ icon: Icon, label, active, onClick, collapsible = false, isCollapsed = false }) => (
-  <button
-    onClick={onClick}
-    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group ${
-      active 
-        ? 'bg-[#1f6feb]/10 text-[#2f81f7] border border-[#1f6feb]/20' 
-        : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
-    }`}
-  >
-    <Icon className={`w-4 h-4 ${active ? 'text-[#2f81f7]' : 'group-hover:text-[var(--text-primary)]'}`} />
-    {!isCollapsed && <span className="text-sm font-medium">{label}</span>}
-    {active && !isCollapsed && <motion.div layoutId="active-pill" className="ml-auto w-1.5 h-1.5 rounded-full bg-[#2f81f7]" />}
-  </button>
-);
+const SidebarItem = ({ icon: Icon, label, active, onClick, collapsible = false, isCollapsed = false }) => {
+  let theme = 'light';
+  try {
+    const themeContext = useTheme();
+    theme = themeContext?.theme || 'light';
+  } catch (e) {
+    // Fallback if rendered outside of ThemeProvider context
+  }
+
+  const activeStyles = theme === 'dark'
+    ? 'bg-[#1f6feb]/10 text-[#2f81f7] border border-[#1f6feb]/20' 
+    : 'bg-[#eff6ff] text-[#1e40af] border border-[#bfdbfe] font-bold shadow-sm';
+    
+  const iconStyles = theme === 'dark'
+    ? (active ? 'text-[#2f81f7]' : 'group-hover:text-[var(--text-primary)]')
+    : (active ? 'text-[#2563eb]' : 'group-hover:text-[#1e40af]');
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group ${
+        active 
+          ? activeStyles 
+          : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
+      }`}
+    >
+      <Icon className={`w-4 h-4 ${iconStyles}`} />
+      {!isCollapsed && <span className="text-sm">{label}</span>}
+      {active && !isCollapsed && (
+        <motion.div 
+          layoutId="active-pill" 
+          className={`ml-auto w-1.5 h-1.5 rounded-full ${theme === 'dark' ? 'bg-[#2f81f7]' : 'bg-[#2563eb]'}`} 
+        />
+      )}
+    </button>
+  );
+};
 
 const RepoCard = ({ repo, viewMode }) => {
   const navigate = useNavigate();
@@ -237,7 +261,7 @@ const RepoCard = ({ repo, viewMode }) => {
               <span className="text-[10px] text-amber-500 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
                 {repo.ahead} ahead
               </span>
-              <button className="flex items-center gap-1 px-2 py-0.5 bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded text-[10px] hover:bg-[var(--bg-secondary)] transition-colors">
+              <button className="flex items-center gap-1 px-2 py-0.5 bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded text-[10px] text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors">
                 <Repeat className="w-2.5 h-2.5" />
                 Sync
               </button>
@@ -455,19 +479,6 @@ const RepositoriesPage = () => {
               label="My Repositories" 
               active={activeSection === 'repositories'} 
               onClick={() => setActiveSection('repositories')} 
-              isCollapsed={isSidebarCollapsed}
-            />
-            <SidebarItem 
-              icon={GitFork} 
-              label="My Forks" 
-              active={activeSection === 'forks'} 
-              onClick={() => setActiveSection('forks')} 
-              isCollapsed={isSidebarCollapsed}
-            />
-             <SidebarItem 
-              icon={Shield} 
-              label="Admin Access" 
-              active={activeSection === 'admin'} 
               isCollapsed={isSidebarCollapsed}
             />
             <div className="my-4 border-t border-[var(--border-color)] opacity-50" />

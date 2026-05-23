@@ -62,7 +62,7 @@ const MainContent = () => {
       setChatResponse(res.data.response);
     } catch (err) {
       console.error(err);
-      setChatResponse('Error fetching response from Gemini API.');
+      setChatResponse('Error fetching response from AI.');
     } finally {
       setIsChatLoading(false);
       setChatInput('');
@@ -259,7 +259,7 @@ const MainContent = () => {
               <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-tertiary)] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Cpu className="w-4 h-4 text-[#2f81f7]" />
-                  <span className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">Gemini Agent Response</span>
+                  <span className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">AI Agent Response</span>
                 </div>
                 <button onClick={() => setChatResponse('')} className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                   <X className="w-4 h-4" />
@@ -371,10 +371,6 @@ const MainContent = () => {
         <section className="mt-8">
           <div className="flex items-center justify-between mb-4 border-b border-[var(--border-color)] pb-4">
             <h2 className="text-lg font-bold text-[var(--text-primary)]">Feed</h2>
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-md text-xs font-medium text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors">
-              <Filter className="w-3.5 h-3.5" />
-              Filter
-            </button>
           </div>
 
           <div className="space-y-4">
@@ -410,7 +406,7 @@ const MainContent = () => {
                     </div>
                     <button 
                       onClick={() => window.location.href = `/org/${org._id}`}
-                      className="px-3 py-1.5 text-xs font-medium bg-[var(--bg-tertiary)] hover:bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-md transition-all flex items-center gap-2 group"
+                      className="px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] bg-[var(--bg-tertiary)] hover:bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-md transition-all flex items-center gap-2 group"
                     >
                       View
                       <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
@@ -433,16 +429,7 @@ const MainContent = () => {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="pt-12 border-t border-[var(--border-color)] flex flex-wrap gap-x-6 gap-y-4 text-[11px] text-[var(--text-secondary)] mt-10">
-          <div className="flex items-center gap-2">
-             <Zap className="w-3 h-3" />
-             <span>© 2026 Collaboration Platform.</span>
-          </div>
-          {['Terms', 'Privacy', 'Security', 'Status', 'Docs', 'Contact', 'Manage cookies'].map(link => (
-            <a key={link} href="#" className="hover:text-[#2f81f7] transition-colors">{link}</a>
-          ))}
-        </footer>
+
       </div>
     </div>
   );

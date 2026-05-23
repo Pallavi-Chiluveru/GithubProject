@@ -152,7 +152,7 @@ export default function CreateOrg() {
                 className="w-full rounded-md border border-[#30363d] bg-[#0d1117] px-4 py-2 text-sm text-[#e6edf3] focus:border-[#1f6feb] focus:outline-none focus:ring-1 focus:ring-[#1f6feb]"
               />
               <p className="text-xs text-[#8b949e]">
-                This will be the name of your organization on antigravity.
+                This will be the name of your organization on CodeForge.
               </p>
             </div>
 
@@ -211,7 +211,7 @@ export default function CreateOrg() {
                   className="mt-1"
                 />
                 <p className="text-sm text-[#8b949e]">
-                  I am happy to receive occasional marketing emails from antigravity. I can unsubscribe at any time. By clicking "Next", you agree to the <span className="text-[#58a6ff] hover:underline">antigravity Customer Agreement</span>.
+                  I am happy to receive occasional marketing emails from CodeForge. I can unsubscribe at any time. By clicking "Next", you agree to the <span className="text-[#58a6ff] hover:underline">CodeForge Customer Agreement</span>.
                 </p>
               </label>
             </div>

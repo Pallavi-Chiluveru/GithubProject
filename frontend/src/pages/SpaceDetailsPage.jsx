@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../api';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -96,7 +96,7 @@ const SpaceDetailsPage = () => {
     const fetchSpaceDetails = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`http://127.0.0.1:5000/space-api/${id}`);
+        const res = await API.get(`/space-api/${id}`);
         setSpace(res.data.payload);
       } catch (err) {
         console.error('Error fetching space details:', err);

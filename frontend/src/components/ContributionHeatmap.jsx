@@ -22,18 +22,21 @@ const ContributionHeatmap = ({ username }) => {
   }, [username]);
 
   // Generate a grid for the last 12 months (roughly 52 weeks)
+  // Generate a grid for the last 12 months (roughly 52 weeks) in UTC to prevent timezone shifts
   const generateGrid = () => {
     const days = [];
     const today = new Date();
-    const startDate = new Date();
-    startDate.setFullYear(today.getFullYear() - 1);
     
-    // Adjust to the nearest previous Sunday
-    startDate.setDate(startDate.getDate() - startDate.getDay());
+    // Start exactly 1 year ago in UTC
+    const startDate = new Date(Date.UTC(today.getUTCFullYear() - 1, today.getUTCMonth(), today.getUTCDate()));
+    
+    // Adjust to the nearest previous UTC Sunday
+    const startDay = startDate.getUTCDay();
+    startDate.setUTCDate(startDate.getUTCDate() - startDay);
 
     for (let i = 0; i < 365 + 7; i++) {
       const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
+      date.setUTCDate(startDate.getUTCDate() + i);
       const dateStr = date.toISOString().split('T')[0];
       const contribution = contributions.find(c => c._id === dateStr);
       const count = contribution ? contribution.count : 0;
@@ -53,7 +56,6 @@ const ContributionHeatmap = ({ username }) => {
     weeks.push(days.slice(i, i + 7));
   }
 
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const weekDays = ['Mon', 'Wed', 'Fri'];
 
   const getIntensityClass = (level) => {
@@ -87,10 +89,23 @@ const ContributionHeatmap = ({ username }) => {
           </div>
 
           <div className="flex-1">
-            {/* Month Labels */}
-            <div className="flex justify-between text-[10px] text-[#8b949e] mb-2 px-1">
-               {/* Simplified month display */}
-               {months.map(m => <span key={m}>{m}</span>)}
+            {/* Month Labels dynamically aligned to start of months */}
+            <div className="flex gap-[3px] text-[10px] text-[#8b949e] mb-2 font-semibold h-4 relative">
+              {weeks.map((week, wi) => {
+                const date = new Date(week[0].date);
+                const monthName = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+                const isFirstWeekOfMonth = wi === 0 || new Date(weeks[wi - 1][0].date).getUTCMonth() !== date.getUTCMonth();
+                
+                return (
+                  <div key={wi} className="w-3 text-left relative shrink-0">
+                    {isFirstWeekOfMonth && (
+                      <span className="absolute left-0 whitespace-nowrap">
+                        {monthName}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="flex gap-[3px]">

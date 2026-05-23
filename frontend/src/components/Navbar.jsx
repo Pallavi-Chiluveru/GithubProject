@@ -100,10 +100,6 @@ export default function Navbar() {
   const menuItems = [
     { icon: <CircleDot size={16} />, label: "New issue", path: "/new-issue" },
     { icon: <Book size={16} />, label: "New repository", path: "/create-repo" },
-    { icon: <FileCode size={16} />, label: "Import repository", path: "/import" },
-    { type: "divider" },
-    { icon: <Box size={16} />, label: "New codespace", path: "/codespaces/new" },
-    { icon: <FileCode size={16} />, label: "New gist", path: "/gist" },
     { type: "divider" },
     { icon: <Building size={16} />, label: "New organization", path: "/org" },
     { icon: <Layout size={16} />, label: "New project", path: "/new-project" },
@@ -126,7 +122,7 @@ export default function Navbar() {
     "/settings/organizations": "Organizations",
   }[location.pathname] || (
     location.pathname.startsWith("/org/") ? "Organization" :
-    location.pathname.startsWith("/repo/") ? "Repository" : "antigravity"
+    location.pathname.startsWith("/repo/") ? "Repository" : "CodeForge"
   );
 
   return (
@@ -137,9 +133,7 @@ export default function Navbar() {
           <Menu className="h-5 w-5 text-[var(--text-secondary)]" />
         </button>
         <Link to="/dashboard" className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md border border-[var(--border-color)] bg-[var(--bg-secondary)]">
-            <Github className="h-5 w-5 text-[var(--text-primary)]" />
-          </div>
+          <Github className="w-12 h-12 object-contain hover:opacity-80 cursor-pointer transition-opacity" />
           <span className="hidden text-sm font-bold text-[var(--text-primary)] md:block">{pageTitle}</span>
         </Link>
       </div>
@@ -226,7 +220,7 @@ export default function Navbar() {
             <div className="relative" ref={profileRef}>
               <div 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="h-7 w-7 overflow-hidden rounded-full border border-[#30363d] cursor-pointer hover:border-[#8b949e] ml-2"
+                className="h-7 w-7 overflow-hidden rounded-full border-2 border-[var(--border-color)] cursor-pointer hover:border-[#2f81f7] ml-2 transition-all"
               >
                 <img
                   src={user?.profileImageUrl || `https://ui-avatars.com/api/?name=${user?.username || "User"}&background=random`}
@@ -236,11 +230,11 @@ export default function Navbar() {
               </div>
 
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-72 rounded-xl border border-[#30363d] bg-[#0d1117] py-2 shadow-2xl z-[70] overflow-hidden animate-in fade-in zoom-in duration-150">
+                <div className="absolute right-0 mt-2 w-72 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] py-2 shadow-[0_8px_40px_rgba(0,0,0,0.12)] z-[70] overflow-hidden animate-in fade-in zoom-in duration-150">
                   {/* Profile Header */}
-                  <div className="px-4 py-3 flex items-center justify-between hover:bg-[#161b22] cursor-pointer transition-colors border-b border-[#30363d] mb-1">
+                  <div className="px-4 py-3 flex items-center justify-between hover:bg-[var(--bg-secondary)] cursor-pointer transition-colors border-b border-[var(--border-color)] mb-1">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full overflow-hidden border border-[#30363d]">
+                      <div className="w-9 h-9 rounded-full overflow-hidden border border-[var(--border-color)]">
                         <img 
                           src={user?.profileImageUrl || `https://ui-avatars.com/api/?name=${user?.username || "User"}&background=random`} 
                           alt="Avatar" 
@@ -248,22 +242,22 @@ export default function Navbar() {
                         />
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-[#f0f6fc]">{user.username || 'Pallavi-Chiluveru'}</span>
-                        <span className="text-xs text-[#8b949e]">{user.displayName || 'Chiluveru Pallavi'}</span>
+                        <span className="text-sm font-bold text-[var(--text-primary)]">{user.username || 'Pallavi-Chiluveru'}</span>
+                        <span className="text-xs text-[var(--text-secondary)]">{user.displayName || 'Chiluveru Pallavi'}</span>
                       </div>
                     </div>
-                    <Repeat className="w-4 h-4 text-[#8b949e]" />
+                    <Repeat className="w-4 h-4 text-[var(--text-secondary)]" />
                   </div>
 
                   {/* Status */}
-                  <div className="px-4 py-2 hover:bg-[#161b22] cursor-pointer group transition-colors">
-                    <div className="flex items-center gap-3 text-[#c9d1d9] group-hover:text-white">
+                  <div className="px-4 py-2 hover:bg-[var(--bg-secondary)] cursor-pointer group transition-colors">
+                    <div className="flex items-center gap-3 text-[var(--text-primary)]">
                       <Target className="w-4 h-4 text-[#f778ba]" />
                       <span className="text-sm">Focusing</span>
                     </div>
                   </div>
 
-                  <div className="my-1 border-t border-[#30363d]" />
+                  <div className="my-1 border-t border-[var(--border-color)]" />
 
                   {/* Menu Sections */}
                   {[
@@ -276,14 +270,14 @@ export default function Navbar() {
                       key={i}
                       to={item.path}
                       onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center gap-3 px-4 py-1.5 text-sm text-[#c9d1d9] hover:bg-[#1f6feb] hover:text-white transition-all group"
+                      className="flex items-center gap-3 px-4 py-1.5 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-all group"
                     >
-                      <span className="text-[#8b949e] group-hover:text-white">{item.icon}</span>
+                      <span className="text-[var(--text-secondary)] group-hover:text-[#2f81f7]">{item.icon}</span>
                       <span>{item.label}</span>
                     </Link>
                   ))}
 
-                  <div className="my-1 border-t border-[#30363d]" />
+                  <div className="my-1 border-t border-[var(--border-color)]" />
 
                   {[
                     { icon: <Building size={16} />, label: "Organizations", path: "/settings/organizations" },
@@ -294,14 +288,14 @@ export default function Navbar() {
                       key={i}
                       to={item.path}
                       onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center gap-3 px-4 py-1.5 text-sm text-[#c9d1d9] hover:bg-[#1f6feb] hover:text-white transition-all group"
+                      className="flex items-center gap-3 px-4 py-1.5 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-all group"
                     >
-                      <span className="text-[#8b949e] group-hover:text-white">{item.icon}</span>
+                      <span className="text-[var(--text-secondary)] group-hover:text-[#2f81f7]">{item.icon}</span>
                       <span>{item.label}</span>
                     </Link>
                   ))}
 
-                  <div className="my-1 border-t border-[#30363d]" />
+                  <div className="my-1 border-t border-[var(--border-color)]" />
 
                   {[
                     { icon: <Settings size={16} />, label: "Settings", path: "/settings" },
@@ -315,27 +309,27 @@ export default function Navbar() {
                       key={i}
                       to={item.path}
                       onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center justify-between px-4 py-1.5 text-sm text-[#c9d1d9] hover:bg-[#1f6feb] hover:text-white transition-all group"
+                      className="flex items-center justify-between px-4 py-1.5 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-all group"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-[#8b949e] group-hover:text-white">{item.icon}</span>
+                        <span className="text-[var(--text-secondary)] group-hover:text-[#2f81f7]">{item.icon}</span>
                         <span>{item.label}</span>
                       </div>
                       {item.badge && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full border border-[#30363d] ${item.badge === 'New' ? 'text-[#2f81f7] border-[#2f81f7]' : 'text-[#8b949e]'}`}>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${item.badge === 'New' ? 'text-[#2f81f7] border-[#2f81f7]/40' : 'text-[var(--text-secondary)] border-[var(--border-color)]'}`}>
                           {item.badge}
                         </span>
                       )}
                     </Link>
                   ))}
 
-                  <div className="my-1 border-t border-[#30363d]" />
+                  <div className="my-1 border-t border-[var(--border-color)]" />
 
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 w-full px-4 py-2 text-sm text-[#c9d1d9] hover:bg-[#1f6feb] hover:text-white transition-all group text-left"
+                    className="flex items-center gap-3 w-full px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-red-50 hover:text-red-600 transition-all group text-left"
                   >
-                    <LogOut size={16} className="text-[#8b949e] group-hover:text-white" />
+                    <LogOut size={16} className="text-[var(--text-secondary)] group-hover:text-red-500" />
                     <span>Sign out</span>
                   </button>
                 </div>

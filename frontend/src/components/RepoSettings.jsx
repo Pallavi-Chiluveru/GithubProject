@@ -112,7 +112,7 @@ export default function RepoSettings() {
   // 6. AI Models States
   const [modelConnections, setModelConnections] = useState([]);
   const [promptHistory, setPromptHistory] = useState([]);
-  const [selectedProvider, setSelectedProvider] = useState("gemini");
+  const [selectedProvider, setSelectedProvider] = useState("groq");
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [playgroundPrompt, setPlaygroundPrompt] = useState("");
   const [playgroundResponse, setPlaygroundResponse] = useState("");
@@ -187,7 +187,7 @@ export default function RepoSettings() {
       }
     };
     fetchRepo();
-    return () => { document.title = "Anti" + "gravity"; };
+    return () => { document.title = "CodeForge"; };
   }, [id, navigate]);
 
   // Dynamic Tab Fetching
@@ -1723,7 +1723,7 @@ export default function RepoSettings() {
                   <h1 className="text-2xl font-semibold text-[#f0f6fc] flex items-center gap-2">
                     <Sparkles size={24} className="text-[#2f81f7]" /> AI Playground
                   </h1>
-                  <p className="text-xs text-[#8b949e]">Configure API keys for AI models (Gemini, OpenAI, Anthropic) and execute live playground prompts.</p>
+                  <p className="text-xs text-[#8b949e]">Configure API keys for AI models (Groq/LLaMA, OpenAI, Anthropic) and execute live playground prompts.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1739,7 +1739,7 @@ export default function RepoSettings() {
                           onChange={(e) => setSelectedProvider(e.target.value)}
                           className="w-full bg-[#010409] border border-[#30363d] rounded-md p-2 text-xs focus:border-[#2f81f7] outline-none"
                         >
-                          <option value="gemini">Google Gemini (Recommended)</option>
+                          <option value="groq">Groq — LLaMA 3.1 8B Instant (Free)</option>
                           <option value="openai">OpenAI (GPT Models)</option>
                           <option value="anthropic">Anthropic (Claude)</option>
                         </select>
@@ -1771,7 +1771,7 @@ export default function RepoSettings() {
                       <div className="space-y-2">
                         {modelConnections.length === 0 ? (
                           <div className="flex items-center gap-1.5 text-xs text-[#8b949e]">
-                            <Info size={12} /> Default Gemini API Key active (System-wide fallback)
+                            <Info size={12} /> Default Groq API Key active (System-wide fallback)
                           </div>
                         ) : (
                           modelConnections.map(conn => (
@@ -1798,7 +1798,7 @@ export default function RepoSettings() {
                           <div className="space-y-4">
                             <div className="bg-[#1f242c] p-2 rounded-md border border-[#30363d]">
                               <span className="font-bold text-[#8b949e] block mb-1">User Prompt:</span>
-                              <p className="text-slate-200">Test execute Gemini inference</p>
+                              <p className="text-slate-200">Test execute Grok inference</p>
                             </div>
                             <div className="bg-[#2f81f7]/5 p-2 rounded-md border border-[#2f81f7]/20">
                               <span className="font-bold text-[#2f81f7] block mb-1">AI Response:</span>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Cpu, 
   Send, 
   Sparkles, 
   PlusSquare, 
@@ -12,12 +11,24 @@ import {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import API from "../api";
+import { useTheme } from "../theme/ThemeContext";
+import darkLogo from "../assets/antigravity_logo_dark.png";
+import lightLogo from "../assets/image.png";
 
 export default function AgentsTab({ repoId, repo }) {
   const [chatInput, setChatInput] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const chatEndRef = useRef(null);
+
+  let theme = "light";
+  try {
+    const themeContext = useTheme();
+    theme = themeContext?.theme || "light";
+  } catch (e) {
+    // Fallback if rendered outside of ThemeProvider context
+  }
+  const logoSrc = theme === "dark" ? darkLogo : lightLogo;
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -37,7 +48,7 @@ export default function AgentsTab({ repoId, repo }) {
       setChatHistory(prev => [...prev, { role: "bot", text: res.data.response }]);
     } catch (err) {
       console.error(err);
-      setChatHistory(prev => [...prev, { role: "bot", text: "Error fetching response from repo agent. Please ensure Gemini API configuration is active." }]);
+      setChatHistory(prev => [...prev, { role: "bot", text: "Error fetching response from AI. Please ensure the Grok API configuration is active." }]);
     } finally {
       setIsChatLoading(false);
     }
@@ -59,11 +70,11 @@ export default function AgentsTab({ repoId, repo }) {
       {/* Agent Page Header */}
       <div className="px-6 py-4 border-b border-[var(--border-color)] bg-[var(--bg-primary)]/20 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#2f81f7] to-[#8a2be2] flex items-center justify-center shadow-md">
-            <Cpu className="h-5 w-5 text-white" />
+          <div className="h-9 w-9 overflow-hidden rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center shadow-sm shrink-0">
+            <img src={logoSrc} alt="Logo" className="w-full h-full object-contain select-none" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-[var(--text-primary)]">antigravity AI Agent</h3>
+            <h3 className="text-sm font-bold text-[var(--text-primary)]">CodeForge AI Agent</h3>
             <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">Your repository-aware assistant. Code generation, design, and architecture audits.</p>
           </div>
         </div>
@@ -106,8 +117,8 @@ export default function AgentsTab({ repoId, repo }) {
             {chatHistory.map((msg, idx) => (
               <div key={idx} className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 {msg.role === "bot" && (
-                  <div className="w-8 h-8 rounded-full bg-[#161b22] flex items-center justify-center shrink-0 border border-[var(--border-color)] shadow-sm">
-                    <Cpu className="w-4 h-4 text-[#8b949e]" />
+                  <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-[var(--border-color)] shadow-sm bg-[var(--bg-secondary)]">
+                    <img src={logoSrc} alt="Agent" className="w-full h-full object-contain select-none" />
                   </div>
                 )}
 
@@ -158,8 +169,8 @@ export default function AgentsTab({ repoId, repo }) {
 
             {isChatLoading && (
               <div className="flex gap-4 justify-start">
-                <div className="w-8 h-8 rounded-full bg-[#161b22] flex items-center justify-center shrink-0 border border-[var(--border-color)] shadow-sm">
-                  <Cpu className="w-4 h-4 text-[#8b949e]" />
+                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border border-[var(--border-color)] shadow-sm bg-[var(--bg-secondary)]">
+                  <img src={logoSrc} alt="Agent" className="w-full h-full object-contain select-none" />
                 </div>
                 <div className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl p-4 flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-[#8b949e] border-t-transparent rounded-full animate-spin" />

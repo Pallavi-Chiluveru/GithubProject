@@ -19,12 +19,41 @@ const userSchema = new Schema({
         type:String,
         default: ""
     },
+    displayName:{
+        type:String,
+        default: ""
+    },
     bio:{
         type:String,
         default: ""
     },
+    company:{
+        type:String,
+        default: ""
+    },
+    location:{
+        type:String,
+        default: ""
+    },
     profileImageUrl:{
-        type:String
+        type:String,
+        default: ""
+    },
+    followers: [{
+        type: Schema.Types.ObjectId,
+        ref: "user",
+        default: []
+    }],
+    following: [{
+        type: Schema.Types.ObjectId,
+        ref: "user",
+        default: []
+    }],
+    socialLinks: {
+        website: { type: String, default: "" },
+        twitter: { type: String, default: "" },
+        github: { type: String, default: "" },
+        linkedin: { type: String, default: "" }
     },
     isUserActive:{
         type:Boolean,

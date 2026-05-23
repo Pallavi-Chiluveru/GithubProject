@@ -100,6 +100,9 @@ import {
 import { useNavigate, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useTheme } from '../theme/ThemeContext';
+import GithubIcon from '../components/GithubIcon';
+
 
 const SECTION_DATA = [
   {
@@ -5752,7 +5755,7 @@ const SecurityContent = ({ onNext }) => {
                     <ShieldCheck className="w-20 h-20 text-green-400" />
                  </div>
                  <div className="flex items-center gap-4">
-                    <img src="https://github.com/identicons/antigravity.png" className="w-12 h-12 rounded-full border border-white/10" alt="Avatar" />
+                    <img src="https://github.com/identicons/codeforge.png" className="w-12 h-12 rounded-full border border-white/10" alt="Avatar" />
                     <div>
                        <div className="text-sm font-bold text-white">Update security.config</div>
                        <div className="text-[10px] text-[#8b949e]">Authored by <span className="text-white">@palla</span></div>
@@ -7669,13 +7672,14 @@ const QuickRevisionContent = ({ onNext }) => {
 };
 
 const GitHubCompanion = () => {
+  const { theme } = useTheme();
   const [activeSection, setActiveSection] = useState('intro');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([
-    { role: 'bot', text: 'Hi! I am your antigravity Assistant. Ask me anything about Git or GitHub!' }
+    { role: 'bot', text: 'Hi! I am your CodeForge Assistant. Ask me anything about Git or GitHub!' }
   ]);
   const [copiedCmd, setCopiedCmd] = useState(null);
   
@@ -7718,7 +7722,7 @@ const GitHubCompanion = () => {
       if (lowMsg.includes('branch')) {
         response = "Branches are parallel versions of your code. Pro tip: Always use `git switch -c <name>` to start a new feature safely without breaking the main branch!";
       } else if (lowMsg.includes('repo') || lowMsg.includes('repository')) {
-        response = "A repository is your project's home on antigravity. It stores all files, history, and configuration. Think of it as a highly advanced project folder!";
+        response = "A repository is your project's home on CodeForge. It stores all files, history, and configuration. Think of it as a highly advanced project folder!";
       } else if (lowMsg.includes('pr') || lowMsg.includes('pull request')) {
         response = "Pull Requests (PRs) are the heart of collaboration. They allow you to propose changes and get them reviewed by teammates before merging.";
       } else if (lowMsg.includes('commit')) {
@@ -7734,7 +7738,7 @@ const GitHubCompanion = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#0D1117] text-[#c9d1d9] font-sans overflow-hidden">
+    <div className={`flex h-screen ${theme === 'dark' ? 'bg-[#0D1117] text-[#c9d1d9]' : 'bg-[#f8fafc] text-slate-800 companion-light-mode'} font-sans overflow-hidden`}>
       {/* Progress Bar */}
       <motion.div 
         className="fixed top-0 left-0 right-0 h-1 bg-[#58A6FF] z-[60] origin-left"
@@ -7752,9 +7756,8 @@ const GitHubCompanion = () => {
           >
             <div className="p-6 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#58A6FF]/20 rounded-lg">
-                  <Cpu className="w-5 h-5 text-[#58A6FF]" />
-                </div>
+                <GithubIcon className="w-12 h-12 object-contain" />
+
                 <h2 className="font-bold text-white text-lg tracking-tight">Companion</h2>
               </div>
               <button 

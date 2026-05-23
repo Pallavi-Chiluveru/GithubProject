@@ -43,8 +43,8 @@ export default function Login() {
       
       <div className="w-full max-w-md space-y-8 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)]/95 p-8 backdrop-blur-xl relative z-10 shadow-2xl text-[var(--text-primary)]">
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-elevated)] border border-[var(--border-color)]">
-            <Github className="h-6 w-6 text-[var(--text-primary)]" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--bg-elevated)] border border-[var(--border-color)]">
+            <Github className="h-10 w-10 object-contain" />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-[var(--text-primary)]">Welcome back</h2>
           <p className="mt-2 text-sm text-[var(--text-secondary)]">

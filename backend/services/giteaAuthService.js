@@ -39,12 +39,18 @@ export const createGiteaUser = async ({ username, email, password }) => {
   } catch (err) {
     const status = err.response?.status;
     const message = err.response?.data?.message;
+    const detail = err.response?.data;
+    console.error(
+      `[Gitea] Failed to create user ${username}:`,
+      `status=${status}`,
+      `message=${message}`,
+      `detail=${JSON.stringify(detail)}`
+    );
     // 422 = user already exists in Gitea — look up and return their ID instead
-    if (status === 422 && message?.includes("already")) {
+    if (status === 422 && message?.includes('already')) {
       console.warn(`[Gitea] User ${username} already exists — fetching info.`);
       return getGiteaUserInfo(username);
     }
-    console.error(`[Gitea] Failed to create user ${username}:`, message || err.message);
     return null;
   }
 };

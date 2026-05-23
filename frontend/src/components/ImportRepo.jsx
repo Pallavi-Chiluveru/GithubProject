@@ -56,7 +56,7 @@ export default function ImportRepo() {
                 <History className="h-7 w-7 text-indigo-400" />
              </div>
              <div>
-                <h1 className="text-3xl font-bold text-[#f0f6fc]">Import your project to antigravity</h1>
+                <h1 className="text-3xl font-bold text-[#f0f6fc]">Import your project to CodeForge</h1>
                 <p className="text-[#8b949e] mt-1 text-sm">Import all the files, including revision history, from another version control system.</p>
              </div>
           </div>

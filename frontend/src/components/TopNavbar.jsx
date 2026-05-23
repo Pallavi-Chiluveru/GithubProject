@@ -50,7 +50,7 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
 
   const [copilotInput, setCopilotInput] = useState('');
   const [chatHistory, setChatHistory] = useState([
-    { role: 'bot', text: "Hi! I'm antigravity Agent. I can help you with code completion, explaining code, or generating new functions. How can I help you today?" }
+    { role: 'bot', text: "Hi! I'm CodeForge Agent. I can help you with code completion, explaining code, or generating new functions. How can I help you today?" }
   ]);
   const [isCopilotLoading, setIsCopilotLoading] = useState(false);
 
@@ -68,7 +68,7 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
       setChatHistory([...newHistory, { role: 'bot', text: res.data.response }]);
     } catch (err) {
       console.error(err);
-      setChatHistory([...newHistory, { role: 'bot', text: 'Error fetching response from Gemini API.' }]);
+      setChatHistory([...newHistory, { role: 'bot', text: 'Error fetching response from AI.' }]);
     } finally {
       setIsCopilotLoading(false);
     }
@@ -114,10 +114,6 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
   const menuItems = [
     { icon: <CircleDot size={16} />, label: "New issue", path: "/new-issue" },
     { icon: <Book size={16} />, label: "New repository", path: "/create-repo" },
-    { icon: <FileCode size={16} />, label: "Import repository", path: "/import" },
-    { type: "divider" },
-    { icon: <Box size={16} />, label: "New codespace", path: "/codespaces/new" },
-    { icon: <FileCode size={16} />, label: "New gist", path: "/gist" },
     { type: "divider" },
     { icon: <Building size={16} />, label: "New organization", path: "/org" },
     { icon: <Layout size={16} />, label: "New project", path: "/new-project" },
@@ -134,7 +130,7 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
         </button>
         <div className="flex items-center gap-3">
           <Link to="/dashboard">
-            <GithubIcon className="w-8 h-8 object-contain hover:opacity-80 cursor-pointer transition-opacity" />
+            <GithubIcon className="w-12 h-12 object-contain hover:opacity-80 cursor-pointer transition-opacity" />
           </Link>
           
           <div className="relative" ref={orgRef}>

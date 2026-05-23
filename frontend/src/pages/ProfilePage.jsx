@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import TopNavbar from '../components/TopNavbar';
 import ProfileSidebar from '../components/ProfileSidebar';
 import PopularRepos from '../components/PopularRepos';
+import ProfileRepos from '../components/ProfileRepos';
 import ContributionHeatmap from '../components/ContributionHeatmap';
 import ActivityTimeline from '../components/ActivityTimeline';
 import API from '../api';
@@ -10,6 +11,7 @@ import { motion } from 'framer-motion';
 
 const ProfilePage = () => {
   const { username } = useParams();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,6 +23,7 @@ const ProfilePage = () => {
         setLoading(true);
         const res = await API.get(`/user-api/profile/${username}`);
         setUser(res.data);
+        setError(null);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching profile:', err);
@@ -31,6 +34,14 @@ const ProfilePage = () => {
 
     fetchProfile();
   }, [username]);
+
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser);
+    if (updatedUser && updatedUser.username && updatedUser.username !== username) {
+      // Redirect to the new username page
+      navigate(`/profile/${updatedUser.username}`, { replace: true });
+    }
+  };
 
   if (loading) {
     return (
@@ -56,7 +67,7 @@ const ProfilePage = () => {
       <main className="max-w-[1280px] mx-auto px-4 sm:px-8 pt-24 pb-20">
         {/* Navigation Tabs (GitHub style) */}
         <div className="flex items-center gap-6 border-b border-[#30363d] mb-8 sticky top-16 bg-[#0d1117] z-40 pt-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
-          {['Overview', 'Repositories', 'Projects', 'Packages', 'Stars'].map((tab) => (
+          {['Overview', 'Repositories'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -80,7 +91,7 @@ const ProfilePage = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Sidebar */}
           <div className="w-full lg:w-[296px] flex-shrink-0">
-            <ProfileSidebar user={user} />
+            <ProfileSidebar user={user} onUpdate={handleUserUpdate} />
           </div>
 
           {/* Main Content */}
@@ -92,13 +103,23 @@ const ProfilePage = () => {
                 transition={{ duration: 0.4 }}
                 className="space-y-12"
               >
-                <PopularRepos username={username} />
-                <ContributionHeatmap username={username} />
-                <ActivityTimeline username={username} />
+                <PopularRepos username={user?.username || username} />
+                <ContributionHeatmap username={user?.username || username} />
+                <ActivityTimeline username={user?.username || username} />
+              </motion.div>
+            )}
+
+            {activeTab === 'Repositories' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
+                <ProfileRepos username={user?.username || username} />
               </motion.div>
             )}
             
-            {activeTab !== 'Overview' && (
+            {activeTab !== 'Overview' && activeTab !== 'Repositories' && (
               <div className="flex items-center justify-center h-64 text-[#8b949e] italic">
                 {activeTab} content is coming soon...
               </div>
