@@ -56,21 +56,10 @@ export default function CreateDropdown({ isCompact, onUploadComplete }) {
           <div className="absolute top-full right-0 mt-1.5 w-56 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl overflow-hidden z-50 flex flex-col py-1">
             <button 
               onClick={() => handleAction('files')}
-              className="w-full text-left px-3 py-2 hover:bg-[#1f242c] transition-colors flex items-center gap-3 group"
+              className="w-full text-left px-3 py-2 hover:bg-[#1f242c] transition-colors flex items-center gap-3 group border-b border-[#30363d]"
             >
               <FileCode2 className="h-4 w-4 text-[#8b949e] group-hover:text-[#c9d1d9]" />
               <span className="text-sm font-medium text-[#c9d1d9]">Files and folders...</span>
-            </button>
-            
-            <button 
-              onClick={() => handleAction('spaces')}
-              className="w-full text-left px-3 py-2 hover:bg-[#1f242c] transition-colors flex items-center gap-3 group border-b border-[#30363d]"
-            >
-              <FolderPlus className="h-4 w-4 text-[#8b949e] group-hover:text-[#c9d1d9]" />
-              <div className="flex-1">
-                <span className="text-sm font-medium text-[#c9d1d9]">Spaces...</span>
-              </div>
-              <span className="text-[#8b949e] group-hover:text-[#c9d1d9]">›</span>
             </button>
             
             <button 

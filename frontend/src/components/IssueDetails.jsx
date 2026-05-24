@@ -52,16 +52,18 @@ export default function IssueDetails() {
    const { repoId, issueId } = useParams();
    const navigate    = useNavigate();
 
-   const [issue,     setIssue]     = useState(null);
-   const [repo,      setRepo]      = useState(null);
-   const [comments,  setComments]  = useState([]);   // ← separate comments state
-   const [comment,   setComment]   = useState("");
-   const [activeTab, setActiveTab] = useState("write");
-   const [loading,   setLoading]   = useState(true);
-   const [submitting, setSubmitting] = useState(false);
-   const [error,     setError]     = useState("");
-   const [submitError, setSubmitError] = useState("");
-   const commentEndRef = useRef(null);
+    const [issue,     setIssue]     = useState(null);
+    const [repo,      setRepo]      = useState(null);
+    const [comments,  setComments]  = useState([]);   // ← separate comments state
+    const [comment,   setComment]   = useState("");
+    const [activeTab, setActiveTab] = useState("write");
+    const [loading,   setLoading]   = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [error,     setError]     = useState("");
+    const [submitError, setSubmitError] = useState("");
+    const [toggling,   setToggling]   = useState(false);
+    const [statusMessage, setStatusMessage] = useState("");
+    const commentEndRef = useRef(null);
 
    // ── current logged-in user ─────────────────────────────────────────────
    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -147,11 +149,33 @@ export default function IssueDetails() {
 
    // ── close / reopen issue ───────────────────────────────────────────────
    const handleToggleStatus = async () => {
+      if (toggling) return;
+      setToggling(true);
+      setSubmitError("");
+      setStatusMessage("");
+
+      const currentStatus = issue?.status;
+      const nextStatus = currentStatus === "open" ? "closed" : "open";
+
+      // Optimistic UI update
+      setIssue(prev => ({ ...prev, status: nextStatus }));
+
       try {
          const res = await API.patch(`/issue-api/${issueId}/status`);
-         setIssue(prev => ({ ...prev, status: res.data.issue.status }));
+         const serverStatus = res.data.issue?.status || nextStatus;
+         setIssue(prev => ({ ...prev, status: serverStatus }));
+         
+         // Subtle success message
+         setStatusMessage(`Issue successfully ${serverStatus === "closed" ? "closed" : "reopened"}!`);
+         setTimeout(() => setStatusMessage(""), 4000);
       } catch (err) {
          console.error("Failed to toggle issue status:", err);
+         // Rollback optimistic update on error
+         setIssue(prev => ({ ...prev, status: currentStatus }));
+         const errMsg = err?.response?.data?.message || "Failed to update issue status. Please try again.";
+         setSubmitError(errMsg);
+      } finally {
+         setToggling(false);
       }
    };
 
@@ -394,6 +418,17 @@ export default function IssueDetails() {
                         </div>
                      )}
 
+                     {/* Status success feedback banner */}
+                     {statusMessage && (
+                        <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/20 dark:text-emerald-400">
+                           <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                           <span className="flex-1">{statusMessage}</span>
+                           <button onClick={() => setStatusMessage("")} className="ml-2 text-emerald-500 hover:text-emerald-700">
+                              <X className="h-3.5 w-3.5" />
+                           </button>
+                        </div>
+                     )}
+
                      <div className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] overflow-hidden focus-within:ring-2 focus-within:ring-[#2f81f7]/30 focus-within:border-[#2f81f7] transition-all">
                         {/* Write / Preview tabs */}
                         <div className="flex items-center justify-between border-b border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 pt-2">
@@ -473,9 +508,12 @@ export default function IssueDetails() {
                      <div className="flex justify-end gap-2 pt-1">
                         <button
                            onClick={handleToggleStatus}
-                           className="flex items-center gap-1.5 rounded-md border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-1.5 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                           disabled={toggling}
+                           className="flex items-center gap-1.5 rounded-md border border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-1.5 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] disabled:opacity-50 transition-colors"
                         >
-                           {isOpen ? (
+                           {toggling ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                           ) : isOpen ? (
                               <><CheckCircle2 className="h-4 w-4 text-[#a371f7]" /> Close issue <ChevronDown className="h-3 w-3" /></>
                            ) : (
                               <><CircleDot className="h-4 w-4 text-[#238636]" /> Reopen issue</>

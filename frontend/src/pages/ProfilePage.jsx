@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TopNavbar from '../components/TopNavbar';
+import Sidebar from '../components/Sidebar';
 import ProfileSidebar from '../components/ProfileSidebar';
 import PopularRepos from '../components/PopularRepos';
 import ProfileRepos from '../components/ProfileRepos';
@@ -16,6 +17,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('Overview');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -62,7 +64,8 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] font-sans">
-      <TopNavbar />
+      <TopNavbar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       
       <main className="max-w-[1280px] mx-auto px-4 sm:px-8 pt-24 pb-20">
         {/* Navigation Tabs (GitHub style) */}

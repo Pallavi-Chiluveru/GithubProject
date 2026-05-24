@@ -26,7 +26,8 @@ import {
   SecurityAlert,
   DeployKey,
   RepositorySecret,
-  RepositoryVariable
+  RepositoryVariable,
+  AccessibilitySettings
 } from "../models/SettingsModels.js";
 
 const router = Router();

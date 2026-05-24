@@ -222,6 +222,16 @@ const EditProfileModal = ({ isOpen, onClose, user, onUpdate }) => {
                 >
                   Choose File
                 </button>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setAvatarUrl('')}
+                    disabled={isUploading || isSaving}
+                    className="ml-2 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/30 dark:hover:bg-red-950/40 rounded-md text-xs font-semibold transition-all disabled:opacity-50"
+                  >
+                    Remove Photo
+                  </button>
+                )}
               </div>
             </div>
 

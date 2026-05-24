@@ -56,10 +56,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         animate={isOpen ? "open" : "closed"}
         exit="closed"
         variants={sidebarVariants}
-        className="fixed top-0 left-0 h-screen w-full sm:w-[320px] bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] z-50 flex flex-col shadow-2xl transition-colors duration-300"
+        className="fixed top-[64px] left-0 h-[calc(100vh-64px)] w-full sm:w-[320px] bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] z-50 flex flex-col shadow-2xl transition-colors duration-300"
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between px-5 py-4 sticky top-0 bg-[var(--sidebar-bg)] z-10 border-b border-[var(--border-color)]">
+        <div className="flex items-center justify-between px-5 py-4 bg-[var(--sidebar-bg)] z-10 border-b border-[var(--border-color)] mt-2">
           <div className="flex items-center gap-2 pl-1">
             <GithubIcon className="h-9 object-contain" />
           </div>
@@ -80,7 +80,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <SidebarItem icon={BookOpen} label="All Repositories" to="/repos" onClick={() => setIsOpen(false)} />
             <SidebarItem icon={MessageSquare} label="Discussions" to="/discussions" onClick={() => setIsOpen(false)} />
 
-            <SidebarItem icon={Layout} label="Spaces" to="/spaces" onClick={() => setIsOpen(false)} />
             <SidebarItem icon={Cpu} label="Copilot" to="/copilot" onClick={() => setIsOpen(false)} />
             <SidebarItem icon={Sparkles} label="Learn GitHub" to="/companion" onClick={() => setIsOpen(false)} />
           </div>

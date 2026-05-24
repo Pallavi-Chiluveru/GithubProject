@@ -297,10 +297,7 @@ export default function Navbar() {
                   {[
                     { icon: <Settings size={16} />, label: "Settings", path: "/settings" },
                     { icon: <Repeat size={16} />, label: "Copilot settings", path: "/copilot" },
-                    { icon: <FlaskConical size={16} />, label: "Feature preview", path: "/features", badge: "New" },
-                    { icon: <Paintbrush size={16} />, label: "Appearance", path: "/appearance" },
                     { icon: <Accessibility size={16} />, label: "Accessibility", path: "/accessibility" },
-                    { icon: <UploadCloud size={16} />, label: "Try Enterprise", path: "/enterprise-trial", badge: "Free" },
                   ].map((item, i) => (
                     <Link
                       key={i}

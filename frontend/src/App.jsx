@@ -1,5 +1,6 @@
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AccessibilitySettings from "./components/AccessibilitySettings.jsx";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Navbar from "./components/Navbar";
@@ -23,14 +24,12 @@ const Changelog = lazy(() => import("./components/Changelog"));
 const OrgDashboard = lazy(() => import("./components/OrgDashboard"));
 const Notifications = lazy(() => import("./components/Notifications"));
 const Invitations = lazy(() => import("./components/Invitations"));
-const ManageOrgs = lazy(() => import("./components/ManageOrgs"));
+import ManageOrgs from "./components/ManageOrgs.jsx";
 const SettingsPage = lazy(() => import("./components/SettingsPage"));
 const GlobalIssues = lazy(() => import("./components/GlobalIssues"));
 const GlobalPulls = lazy(() => import("./components/GlobalPulls"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const AgentPage = lazy(() => import("./pages/AgentPage"));
-const SpacesPage = lazy(() => import("./pages/SpacesPage"));
-const SpaceDetailsPage = lazy(() => import("./pages/SpaceDetailsPage"));
 const RepositoriesPage = lazy(() => import("./pages/RepositoriesPage"));
 const GitHubCompanion = lazy(() => import("./pages/GitHubCompanion"));
 const DiscussionsPage = lazy(() => import("./pages/DiscussionsPage"));
@@ -83,16 +82,16 @@ function App() {
           <Route path="/new-project" element={<CreateProject />} />
           <Route path="/gist" element={<CreateGist />} />
 
-          <Route path="/changelog" element={<Changelog />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/settings/accessibility" element={<AccessibilitySettings />} />
           <Route path="/settings/organizations" element={<ManageOrgs />} />
+          <Route path="/settings/:section" element={<SettingsPage />} />
+          <Route path="/changelog" element={<Changelog />} />
           <Route path="/issues" element={<GlobalIssues />} />
           <Route path="/pulls" element={<GlobalPulls />} />
           <Route path="/profile/:username" element={<ProfilePage />} />
           <Route path="/agent" element={<AgentPage />} />
           <Route path="/copilot" element={<AgentPage />} />
-          <Route path="/spaces" element={<SpacesPage />} />
-          <Route path="/spaces/:id" element={<SpaceDetailsPage />} />
 
           <Route path="/repos" element={<RepositoriesPage />} />
           <Route path="/companion" element={<GitHubCompanion />} />

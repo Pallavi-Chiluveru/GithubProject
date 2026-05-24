@@ -144,11 +144,19 @@ issueApp.put("/:issueId", verifyToken, async (req, res) => {
 });
 
 /* ---------------- TOGGLE ISSUE STATUS ---------------- */
-issueApp.patch("/:issueId/status", verifyToken, requireMinimumRole("MAINTAINER"), async (req, res) => {
+issueApp.patch("/:issueId/status", verifyToken, async (req, res) => {
   try {
     const issue = await IssueModel.findById(req.params.issueId);
     if (!issue) {
       return res.status(404).json({ message: "Issue not found" });
+    }
+
+    const role = await getUserRepoRole(req.user.id, issue.repoId);
+    const isCreator = issue.createdBy.toString() === req.user.id;
+    const isCollaborator = role === "OWNER" || role === "MAINTAINER" || role === "DEVELOPER";
+
+    if (!isCreator && !isCollaborator) {
+      return res.status(403).json({ message: "Not authorized to change this issue's status" });
     }
 
     const repo = await RepositoryModel.findById(issue.repoId);

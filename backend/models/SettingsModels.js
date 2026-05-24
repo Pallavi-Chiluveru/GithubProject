@@ -1,6 +1,22 @@
 import { Schema, model } from "mongoose";
 
 // ==========================================
+// 12. ACCESSIBILITY SETTINGS SCHEMA
+// ==========================================
+
+const accessibilitySettingsSchema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  theme: { type: String, enum: ["light", "dark", "system"], default: "system" },
+  reduceMotion: { type: Boolean, default: false },
+  fontSize: { type: String, enum: ["small", "medium", "large"], default: "medium" },
+  highContrast: { type: Boolean, default: false },
+  focusMode: { type: Boolean, default: false },
+});
+
+export const AccessibilitySettings = model("AccessibilitySettings", accessibilitySettingsSchema);
+
+
+// ==========================================
 // 1. MODERATION SCHEMAS
 // ==========================================
 

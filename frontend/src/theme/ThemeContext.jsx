@@ -24,8 +24,10 @@ function applyDocumentAppearance(appearance) {
 
   if (appearance.theme === "dark") {
     root.classList.add("dark-theme");
+    root.classList.add("dark");
   } else {
     root.classList.remove("dark-theme");
+    root.classList.remove("dark");
   }
 
   const sizeMap = { small: "14px", medium: "16px", large: "18px" };

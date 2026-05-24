@@ -120,7 +120,7 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full h-16 bg-[var(--bg-primary)] border-b border-[var(--border-color)] flex items-center justify-between px-4 z-50 transition-colors">
+    <nav className="fixed top-0 left-0 w-full h-16 bg-[var(--bg-primary)] border-b border-[var(--border-color)] flex items-center justify-between px-4 z-[1000] transition-colors">
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuClick}
@@ -349,9 +349,6 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
 
               {[
                 { icon: <Settings size={16} />, label: "Settings", path: "/settings" },
-                { icon: <FlaskConical size={16} />, label: "Feature preview", path: "/features", badge: "New" },
-                { icon: <Paintbrush size={16} />, label: "Appearance", path: "/appearance" },
-                { icon: <UploadCloud size={16} />, label: "Try Enterprise", path: "/enterprise-trial", badge: "Free" },
               ].map((item, i) => (
                 <Link
                   key={i}

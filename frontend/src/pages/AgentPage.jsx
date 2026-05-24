@@ -93,13 +93,6 @@ const AgentPage = () => {
               <Cpu className="w-4 h-4 text-white" />
               <span className="text-white font-medium">Agents</span>
             </button>
-            <button 
-              onClick={() => navigate('/spaces')}
-              className="flex items-center gap-3 w-full px-3 py-2 text-sm text-[#c9d1d9] hover:bg-[#21262d] rounded-md transition-colors"
-            >
-              <Box className="w-4 h-4 text-[#8b949e]" />
-              Spaces
-            </button>
 
           </div>
 
@@ -208,7 +201,7 @@ const AgentPage = () => {
                     </button>
 
                     {btn.label === 'Write code' && showWriteCodeDropdown && (
-                      <div className="absolute top-full left-0 mt-2 w-64 bg-[#161b22] border border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
+                      <div className="git-dropdown-container absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 dark:bg-[#161b22] dark:border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
                         {[
                           'Create a profile README',
                           'Generate a simple calculator',
@@ -227,7 +220,7 @@ const AgentPage = () => {
                               }
                               setShowWriteCodeDropdown(false);
                             }}
-                            className="px-4 py-2 text-sm text-[#c9d1d9] hover:bg-[#1f6feb] hover:text-white cursor-pointer transition-colors text-left"
+                            className="git-dropdown-item px-4 py-2 text-sm text-black hover:text-black hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#1f6feb] dark:hover:text-white cursor-pointer transition-colors text-left"
                           >
                             {item}
                           </div>
@@ -236,7 +229,7 @@ const AgentPage = () => {
                     )}
 
                     {btn.label === 'Git' && showGitDropdown && (
-                      <div className="absolute top-full left-0 mt-2 w-64 bg-[#161b22] border border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
+                      <div className="git-dropdown-container absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 dark:bg-[#161b22] dark:border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
                         {[
                           'Basic Git commands',
                           'Git branching',
@@ -255,7 +248,7 @@ const AgentPage = () => {
                                  setChatInput("Explain advanced Git commands and their usage. Include commands like `git stash`, `git cherry-pick`, `git revert`, and `git reset`. Provide examples for each command.");
                               }
                             }}
-                            className="px-4 py-2 text-sm text-[#c9d1d9] hover:bg-[#1f6feb] hover:text-white cursor-pointer transition-colors text-left"
+                            className="git-dropdown-item px-4 py-2 text-sm text-black hover:text-black hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#1f6feb] dark:hover:text-white cursor-pointer transition-colors text-left"
                           >
                             {item}
                           </div>
@@ -264,7 +257,7 @@ const AgentPage = () => {
                     )}
 
                     {btn.label === 'Pull requests' && showPRDropdown && (
-                      <div className="absolute top-full left-0 mt-2 w-64 bg-[#161b22] border border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
+                      <div className="git-dropdown-container absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 dark:bg-[#161b22] dark:border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
                         {[
                           'My open pull requests',
                           'Summarize my latest PR'
@@ -279,7 +272,7 @@ const AgentPage = () => {
                                  setChatInput("Search for my latest merged PR and summarize it. Explain the purpose of the PR, important changes made, and overall impact.");
                               }
                             }}
-                            className="px-4 py-2 text-sm text-[#c9d1d9] hover:bg-[#1f6feb] hover:text-white cursor-pointer transition-colors text-left"
+                            className="git-dropdown-item px-4 py-2 text-sm text-black hover:text-black hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#1f6feb] dark:hover:text-white cursor-pointer transition-colors text-left"
                           >
                             {item}
                           </div>

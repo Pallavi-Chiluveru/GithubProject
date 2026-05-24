@@ -1,42 +1,71 @@
 import { useState, useEffect } from "react";
-import { 
-  User, 
-  Settings, 
-  Shield, 
-  Bell, 
-  Lock, 
-  CreditCard, 
-  Mail, 
-  Key, 
-  Building, 
-  Users, 
-  Layout, 
+import { useLocation } from "react-router-dom";
+import {
+  User,
+  Settings,
+  Shield,
+  Bell,
+  Lock,
+  CreditCard,
+  Mail,
+  Key,
+  Building,
+  Users,
+  Layout,
   ChevronRight,
   ExternalLink,
-  Plus
+  Plus,
+  Eye
 } from "lucide-react";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
+import SettingsLayout from "./SettingsLayout";
 
 export default function ManageOrgs() {
   const [orgs, setOrgs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [active, setActive] = useState("");
 
+  // Initialize user and fetch organizations on mount
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
       setUser(JSON.parse(userData));
     }
-
+    // Attempt to load cached organizations
+    const cached = localStorage.getItem("orgsCache");
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        setOrgs(parsed);
+        setLoading(false);
+      } catch (e) {
+        // ignore malformed cache
+        setLoading(true);
+      }
+    } else {
+      setLoading(true);
+    }
     fetchOrgs();
   }, []);
+
+  // Reset loading state instantly when navigating to the organizations page to avoid flicker
+  useEffect(() => {
+    if (location.pathname === "/settings/organizations") {
+      setOrgs([]);
+      setLoading(true);
+    }
+  }, [location.pathname]);
 
   const fetchOrgs = async () => {
     try {
       const res = await API.get("/org-api/my-orgs");
       setOrgs(res.data);
+      // Cache the orgs for faster subsequent loads
+      localStorage.setItem("orgsCache", JSON.stringify(res.data));
     } catch (err) {
       console.error("Failed to fetch orgs:", err);
     } finally {
@@ -55,33 +84,50 @@ export default function ManageOrgs() {
   };
 
   const sidebarItems = [
-    { icon: User, label: "Public profile", path: "/settings?tab=profile" },
-    { icon: Settings, label: "Account", path: "/settings?tab=account" },
-    { icon: Layout, label: "Appearance", path: "/settings?tab=appearance" },
-    { icon: Layout, label: "Accessibility", path: "/settings?tab=appearance" },
-    { icon: Bell, label: "Notifications", path: "/settings?tab=notifications" },
+    { icon: User, label: "Public profile", path: "/settings/profile" },
+    { icon: Settings, label: "Account", path: "/settings/account" },
+    { icon: Layout, label: "Appearance", path: "/settings/appearance" },
+    { icon: Bell, label: "Notifications", path: "/settings/notifications" },
     { section: "Access" },
-    { icon: CreditCard, label: "Billing and licensing", path: "/settings?tab=account" },
-    { icon: Mail, label: "Emails", path: "/settings?tab=emails" },
-    { icon: Lock, label: "Password and authentication", path: "/settings?tab=password" },
-    { icon: Shield, label: "Sessions", path: "/settings?tab=sessions" },
-    { icon: Key, label: "SSH and GPG keys", path: "/settings?tab=ssh" },
-    { icon: Building, label: "Organizations", active: true },
-    { icon: Building, label: "Enterprises", path: "/settings/organizations" },
-    { icon: Users, label: "Teams", path: "/settings/organizations" },
-    { icon: Shield, label: "Moderation", path: "/settings/organizations" },
+    { icon: Mail, label: "Emails", path: "/settings/emails" },
+    { icon: Lock, label: "Password and authentication", path: "/settings/password" },
+    { icon: Shield, label: "Sessions", path: "/settings/sessions" },
+    { icon: Key, label: "SSH and GPG keys", path: "/settings/ssh" },
+    { icon: Building, label: "Organizations", path: "/settings/organizations" }
   ];
+
+  useEffect(() => {
+    const path = location.pathname;
+    const match = sidebarItems.find(i => i.path && path.startsWith(i.path.split('?')[0]));
+    if (match) setActive(match.label.toLowerCase().replace(/ /g, ""));
+  }, [location.pathname]);
+
+  if (loading && orgs.length === 0) {
+    // Show skeleton UI instantly while fetching organizations
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#0d1117]">
+        <div className="space-y-4 w-64">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex items-center gap-4 animate-pulse">
+              <div className="h-12 w-12 rounded-md bg-[#30363d]"></div>
+              <div className="flex-1 h-4 rounded bg-[#30363d]"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] font-sans pb-20">
       <div className="mx-auto max-w-6xl px-4 pt-12">
         <div className="flex flex-col md:flex-row gap-8">
-          
+
           {/* SIDEBAR */}
           <aside className="w-full md:w-64 space-y-1">
             <div className="flex items-center gap-3 px-2 mb-6">
               <div className="h-10 w-10 overflow-hidden rounded-full border border-[#30363d]">
-                 <img src={`https://ui-avatars.com/api/?name=${user?.username || "User"}&background=random`} alt="Avatar" />
+                <img src={`https://ui-avatars.com/api/?name=${user?.username || "User"}&background=random`} alt="Avatar" />
               </div>
               <div>
                 <h2 className="text-sm font-semibold text-[#f0f6fc]">{user?.username || "User"}</h2>
@@ -96,13 +142,12 @@ export default function ManageOrgs() {
                 <button
                   key={idx}
                   onClick={() => item.path && navigate(item.path)}
-                  className={`flex items-center gap-3 w-full px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    item.active 
-                    ? "bg-[#21262d] text-[#f0f6fc] border-l-2 border-[#ec4899]" 
+                  className={`flex items-center gap-3 w-full px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${active === item.label.toLowerCase().replace(/ /g, "")
+                    ? "bg-[#21262d] text-[#f0f6fc] border-l-2 border-[#ec4899]"
                     : "text-[#c9d1d9] hover:bg-[#21262d]"
-                  }`}
+                    }`}
                 >
-                  <item.icon className={`h-4 w-4 ${item.active ? "text-[#ec4899]" : "text-[#8b949e]"}`} />
+                  <item.icon className={`h-4 w-4 ${active === item.label.toLowerCase().replace(/ /g, "") ? "text-[#ec4899]" : "text-[#8b949e]"}`} />
                   {item.label}
                 </button>
               )
@@ -113,7 +158,7 @@ export default function ManageOrgs() {
           <main className="flex-1">
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#30363d]">
               <h1 className="text-xl font-semibold text-[#f0f6fc]">Organizations</h1>
-              <button 
+              <button
                 onClick={() => navigate("/org")}
                 className="flex items-center gap-1.5 rounded-md bg-[#21262d] border border-[#30363d] px-3 py-1 text-sm font-semibold text-[#f0f6fc] hover:bg-[#30363d]"
               >
@@ -122,8 +167,13 @@ export default function ManageOrgs() {
             </div>
 
             {loading ? (
-              <div className="flex justify-center py-20">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#ec4899]"></div>
+              <div className="space-y-4 p-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 animate-pulse">
+                    <div className="h-12 w-12 rounded-md bg-[#30363d]"></div>
+                    <div className="flex-1 h-4 rounded bg-[#30363d]"></div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="space-y-6">
@@ -152,11 +202,11 @@ export default function ManageOrgs() {
                               <p className="text-xs text-[#8b949e] mt-0.5">{org.description || "No description provided."}</p>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center gap-2">
                             {org.owner === user?._id ? (
                               <>
-                                <button 
+                                <button
                                   onClick={() => navigate(`/org/${org._id}`)}
                                   className="px-3 py-1 rounded-md border border-[#30363d] bg-[#21262d] text-xs font-semibold text-[#f0f6fc] hover:bg-[#30363d]"
                                 >
@@ -167,7 +217,7 @@ export default function ManageOrgs() {
                                 </button>
                               </>
                             ) : (
-                              <button 
+                              <button
                                 onClick={() => handleLeave(org._id)}
                                 className="px-3 py-1 rounded-md border border-[#30363d] bg-[#21262d] text-xs font-semibold text-[#f0f6fc] hover:bg-[#30363d]"
                               >

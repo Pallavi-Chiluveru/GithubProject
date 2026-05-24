@@ -159,7 +159,6 @@ const MainContent = () => {
         <div className="flex flex-wrap items-center gap-3 mt-4 ml-1">
           {[
             { icon: Cpu, label: 'Agent', active: false },
-            { icon: Layout, label: 'Spaces', path: '/spaces' },
             { icon: MessageSquare, label: 'Create issue' },
             { icon: Code2, label: 'Write code', dropdown: true },
             { icon: GitBranch, label: 'Git', dropdown: true },
@@ -170,8 +169,6 @@ const MainContent = () => {
                 onClick={() => {
                   if (btn.label === 'Create issue') {
                     window.location.href = '/new-issue';
-                  } else if (btn.label === 'Spaces') {
-                    window.location.href = '/spaces';
                   } else if (btn.label === 'Write code') {
                     setShowWriteCodeDropdown(!showWriteCodeDropdown);
                     setShowGitDropdown(false);
@@ -194,7 +191,7 @@ const MainContent = () => {
               </button>
 
               {btn.label === 'Write code' && showWriteCodeDropdown && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
+                <div className="git-dropdown-container absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 dark:bg-[#161b22] dark:border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
                   {[
                     'Create a profile README',
                     'Generate a simple calculator',
@@ -213,7 +210,7 @@ const MainContent = () => {
                         }
                         setShowWriteCodeDropdown(false);
                       }}
-                      className="px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[#1f6feb] hover:text-white cursor-pointer transition-colors"
+                      className="git-dropdown-item px-4 py-2 text-sm text-black hover:text-black hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#1f6feb] dark:hover:text-white cursor-pointer transition-colors text-left"
                     >
                       {item}
                     </div>
@@ -222,7 +219,7 @@ const MainContent = () => {
               )}
 
               {btn.label === 'Git' && showGitDropdown && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
+                <div className="git-dropdown-container absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 dark:bg-[#161b22] dark:border-[var(--border-color)] rounded-md shadow-lg z-50 py-1">
                   {[
                     'Basic Git commands',
                     'Git branching',
@@ -234,7 +231,7 @@ const MainContent = () => {
                         setActiveGitSection(item);
                         setShowGitDropdown(false);
                       }}
-                      className="px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[#1f6feb] hover:text-white cursor-pointer transition-colors"
+                      className="git-dropdown-item px-4 py-2 text-sm text-black hover:text-black hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-[#1f6feb] dark:hover:text-white cursor-pointer transition-colors text-left"
                     >
                       {item}
                     </div>

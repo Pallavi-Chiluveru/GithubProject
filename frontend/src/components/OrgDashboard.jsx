@@ -195,7 +195,6 @@ export default function OrgDashboard() {
     { id: "repositories", label: "Repositories", icon: <Book size={16} />, count: repos.length },
     { id: "members", label: "People", icon: <Users size={16} />, count: members.length },
     { id: "teams", label: "Teams", icon: <Users size={16} />, count: teams.length },
-    { id: "spaces", label: "Spaces", icon: <Layout size={16} /> },
     { id: "activity", label: "Activity", icon: <Activity size={16} /> },
     ...(canManage ? [{ id: "settings", label: "Settings", icon: <Settings size={16} /> }] : []),
   ];
@@ -342,36 +341,7 @@ export default function OrgDashboard() {
           />
         )}
 
-        {/* SPACES */}
-        {activeTab === "spaces" && (
-          <div className="flex flex-col items-center justify-center py-20 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-center px-6 transition-all">
-            <div className="w-16 h-16 bg-[#1f6feb]/10 rounded-2xl flex items-center justify-center mb-6 border border-[#1f6feb]/20">
-              <Layout className="h-8 w-8 text-[#2f81f7]" />
-            </div>
-            <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Organization Spaces</h3>
-            <p className="text-[var(--text-secondary)] text-sm max-w-md mb-8">
-              Spaces help you group repositories, documentation, and AI context for specific projects within {org.name}.
-            </p>
-            <button
-              onClick={() => navigate('/spaces')}
-              className="flex items-center gap-2 px-6 py-2.5 bg-[#238636] hover:bg-[#2ea043] text-white rounded-md text-sm font-semibold transition-all shadow-lg"
-            >
-              <Plus size={18} /> Create a Space
-            </button>
-            <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl opacity-50 grayscale pointer-events-none">
-              <div className="p-4 border border-[var(--border-color)] rounded-lg bg-[var(--bg-primary)] text-left">
-                <div className="h-4 w-24 bg-[var(--bg-tertiary)] rounded mb-2" />
-                <div className="h-3 w-full bg-[var(--bg-secondary)] rounded mb-1" />
-                <div className="h-3 w-2/3 bg-[var(--bg-secondary)] rounded" />
-              </div>
-              <div className="p-4 border border-[var(--border-color)] rounded-lg bg-[var(--bg-primary)] text-left">
-                <div className="h-4 w-24 bg-[var(--bg-tertiary)] rounded mb-2" />
-                <div className="h-3 w-full bg-[var(--bg-secondary)] rounded mb-1" />
-                <div className="h-3 w-2/3 bg-[var(--bg-secondary)] rounded" />
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* ACTIVITY */}
         {activeTab === "activity" && (

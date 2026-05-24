@@ -42,7 +42,7 @@ const AccountPanel = () => {
   );
 
   return (
-    <div className="h-full flex flex-col bg-[var(--bg-primary)] pt-4 transition-colors">
+    <div className="h-full flex flex-col bg-[var(--bg-primary)] pt-10 transition-colors">
       {/* Account Section */}
       <div className="px-4 mb-8">
         <button 
