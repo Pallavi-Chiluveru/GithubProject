@@ -25,7 +25,7 @@ const Dashboard = () => {
 
       <div className="flex">
         {/* Leftmost Account & Repo Panel (Static on Desktop) */}
-        <aside className="hidden lg:block w-[320px] flex-shrink-0 sticky top-16 h-[calc(100vh-64px)] overflow-y-auto border-r border-[var(--border-color)] bg-[var(--bg-primary)] custom-scrollbar">          <AccountPanel />
+        <aside className="hidden lg:block w-[320px] flex-shrink-0 sticky top-20 z-[1001] h-[calc(100vh-95px)] overflow-y-auto border-r border-[var(--border-color)] bg-[var(--bg-primary)] custom-scrollbar">          <AccountPanel />
         </aside>
 
         {/* Global Navigation Sidebar (Sliding Drawer) */}

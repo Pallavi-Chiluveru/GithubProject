@@ -258,7 +258,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <SettingsLayout>
+    <SettingsLayout active={active} setActive={setActive} user={user}>
       {toast && <Toast msg={toast.msg} ok={toast.ok} />}
       {/* Profile */}
       {active === "profile" && (

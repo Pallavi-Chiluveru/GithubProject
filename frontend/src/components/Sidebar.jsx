@@ -51,14 +51,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         )}
       </AnimatePresence>
 
-      <motion.aside
-        initial="closed"
-        animate={isOpen ? "open" : "closed"}
-        exit="closed"
-        variants={sidebarVariants}
-        className="fixed top-[64px] left-0 h-[calc(100vh-64px)] w-full sm:w-[320px] bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] z-50 flex flex-col shadow-2xl transition-colors duration-300"
-      >
-        {/* Sidebar Header */}
+      <aside className={`fixed top-[64px] left-0 h-[calc(100vh-64px)] w-full sm:w-[320px] bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] z-[1100] flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>        {/* Sidebar Header */}
         <div className="flex items-center justify-between px-5 py-4 bg-[var(--sidebar-bg)] z-10 border-b border-[var(--border-color)] mt-2">
           <div className="flex items-center gap-2 pl-1">
             <GithubIcon className="h-9 object-contain" />
@@ -84,7 +77,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <SidebarItem icon={Sparkles} label="Learn GitHub" to="/companion" onClick={() => setIsOpen(false)} />
           </div>
         </div>
-      </motion.aside>
+      </aside>
     </>
   );
 };
