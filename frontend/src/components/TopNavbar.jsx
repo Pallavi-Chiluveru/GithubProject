@@ -297,7 +297,7 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-[var(--text-primary)]">{user.username || 'Pallavi-Chiluveru'}</span>
-                    <span className="text-xs text-[var(--text-secondary)]">{user.displayName || 'Chiluveru Pallavi'}</span>
+                    <span className="text-xs text-[var(--text-secondary)]">{user.email}</span>
                   </div>
                 </div>
                 <Repeat className="w-4 h-4 text-[var(--text-secondary)]" />

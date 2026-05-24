@@ -168,11 +168,14 @@ const ProfileSidebar = ({ user, onUpdate }) => {
       <div className="space-y-4">
         <div>
           <h1 className="text-2xl font-bold text-white leading-tight">
-            {user.displayName || user.gitname || user.username}
-          </h1>
-          <p className="text-xl text-[#8b949e] font-light">
-            {user.username}
-          </p>
+          {user.displayName || user.gitname || user.username}
+        </h1>
+        <p className="text-xl text-[#8b949e] font-light">
+          {user.username}
+        </p>
+        <p className="text-sm text-[#8b949e] font-light">
+          {user.email}
+        </p>
         </div>
 
         {user.bio && (
