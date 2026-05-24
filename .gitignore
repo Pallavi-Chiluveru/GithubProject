@@ -1,4 +1,7 @@
 docker-compose.yml
 temp.yamin
 deployment.txt
+.env
+.env.*
+!.env.example
 

@@ -158,7 +158,7 @@ webhookApp.post("/gitea", verifyGiteaSignature, validateWebhookIdentity, async (
 webhookApp.get("/health", (req, res) => {
   res.status(200).json({
     status: "ok",
-    message: "Antigravity webhook receiver is live",
+    message: "RepoSphere webhook receiver is live",
     timestamp: new Date().toISOString(),
   });
 });

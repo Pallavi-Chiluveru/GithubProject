@@ -14,7 +14,7 @@ const groqClient = new Groq({
 const MODEL = "llama-3.1-8b-instant";
 
 const SYSTEM_PROMPT =
-  "You are a helpful coding assistant within a GitHub-like platform. " +
+  "You are a helpful coding assistant within RepoSphere, a collaborative Git platform. " +
   "Be concise and provide code blocks where relevant. " +
   "Format code in markdown fenced blocks with the correct language tag.";
 

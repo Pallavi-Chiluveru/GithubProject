@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import API from "../api";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
@@ -11,16 +11,80 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setAppearance } = useTheme();
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+  const completeLogin = (data) => {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.payload));
+    setAppearance(data.payload.appearance || defaultAppearance);
+    navigate("/dashboard");
+  };
+
+  const handleGoogleCredential = async (response) => {
+    if (!response?.credential) return;
+    setLoading(true);
+    try {
+      const res = await API.post("/user-api/google", { credential: response.credential });
+      completeLogin(res.data);
+    } catch (err) {
+      const errorMsg = err.response?.data?.error ||
+                       err.response?.data?.message ||
+                       "Google sign-in failed. Please try again.";
+      alert(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!googleClientId) return;
+
+    window.handleGoogleSignIn = handleGoogleCredential;
+
+    const initializeGoogleButton = () => {
+      if (!window.google?.accounts?.id) return;
+
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: window.handleGoogleSignIn,
+      });
+
+      const buttonContainer = document.getElementById("google-signin-button");
+      if (buttonContainer) {
+        buttonContainer.innerHTML = "";
+        window.google.accounts.id.renderButton(buttonContainer, {
+          theme: "outline",
+          size: "large",
+          width: buttonContainer.offsetWidth || 320,
+          text: "signin_with",
+          shape: "rectangular",
+        });
+      }
+    };
+
+    if (window.google?.accounts?.id) {
+      initializeGoogleButton();
+    } else {
+      const existingScript = document.querySelector("script[src='https://accounts.google.com/gsi/client']");
+      const script = existingScript || document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGoogleButton;
+      if (!existingScript) document.body.appendChild(script);
+    }
+
+    return () => {
+      delete window.handleGoogleSignIn;
+    };
+  }, [googleClientId]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const res = await API.post("/user-api/login", { email, password });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.payload));
-      setAppearance(res.data.payload.appearance || defaultAppearance);
-      navigate("/dashboard");
+      completeLogin(res.data);
     } catch (err) {
       const errorMsg = err.response?.data?.error || 
                        err.response?.data?.message || 
@@ -88,6 +152,27 @@ export default function Login() {
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </button>
         </form>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-[var(--border-color)]" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">or</span>
+            <div className="h-px flex-1 bg-[var(--border-color)]" />
+          </div>
+
+          {googleClientId ? (
+            <div id="google-signin-button" className="flex min-h-[44px] w-full justify-center" />
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="flex w-full items-center justify-center gap-3 rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] px-4 py-2.5 text-sm font-semibold text-[var(--text-secondary)] opacity-70"
+            >
+              <span className="text-base font-bold">G</span>
+              Google sign-in needs a client ID
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

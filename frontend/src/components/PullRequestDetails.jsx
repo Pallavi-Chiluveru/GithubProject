@@ -39,6 +39,8 @@ export default function PullRequestDetails() {
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [merging, setMerging] = useState(false);
+  const [mergeMenuOpen, setMergeMenuOpen] = useState(false);
+  const [diffView, setDiffView] = useState("unified");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   const fetchPR = async () => {
@@ -80,6 +82,7 @@ export default function PullRequestDetails() {
   };
 
   const handleMerge = async (method = "merge") => {
+    setMergeMenuOpen(false);
     if (!window.confirm(`Are you sure you want to merge via ${method}?`)) return;
     try {
       setMerging(true);
@@ -99,6 +102,17 @@ export default function PullRequestDetails() {
       fetchPR();
     } catch (err) {
       alert("Failed to close PR");
+    }
+  };
+
+  const handleReject = async () => {
+    const message = prompt("Add a rejection reason:");
+    if (message === null) return;
+    try {
+      await API.post(`/pr-api/reject/${prId}`, { message });
+      fetchPR();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to reject PR");
     }
   };
 
@@ -149,7 +163,7 @@ export default function PullRequestDetails() {
 
   const isAuthor = pr.createdBy?._id === user.id;
   const hasApprovals = pr.reviews?.some(r => r.reviewType === "approve");
-  const canMerge = pr.role === "OWNER" || pr.role === "MAINTAINER";
+  const canMerge = pr.role === "OWNER";
   const canReview = pr.role === "OWNER" || pr.role === "MAINTAINER";
   const canClose = pr.role === "OWNER" || pr.role === "MAINTAINER" || isAuthor;
   const changedFiles = pr.files || [];
@@ -179,8 +193,8 @@ export default function PullRequestDetails() {
                 </h1>
              </div>
              <div className="flex items-center gap-2">
-                <button className="p-2 hover:bg-[#30363d] rounded-lg transition-all text-[#8b949e] hover:text-[#f0f6fc]"><History size={18} /></button>
-                <button className="p-2 hover:bg-[#30363d] rounded-lg transition-all text-[#8b949e] hover:text-[#f0f6fc]"><Settings size={18} /></button>
+                <button onClick={() => setActiveTab("commits")} title="View commits" className="p-2 hover:bg-[#30363d] rounded-lg transition-all text-[#8b949e] hover:text-[#f0f6fc]"><History size={18} /></button>
+                <button onClick={() => navigate(`/repo/${id}/settings`)} title="Repository settings" className="p-2 hover:bg-[#30363d] rounded-lg transition-all text-[#8b949e] hover:text-[#f0f6fc]"><Settings size={18} /></button>
              </div>
           </div>
 
@@ -315,15 +329,37 @@ export default function PullRequestDetails() {
                                     {merging ? <Activity className="animate-spin h-4 w-4" /> : <GitMerge size={16} />}
                                     Merge pull request
                                   </button>
-                                  <button className="bg-[#238636] hover:bg-[#2ea043] text-white px-3 py-2.5 transition-colors">
+                                  <button
+                                    type="button"
+                                    onClick={() => setMergeMenuOpen(prev => !prev)}
+                                    className="bg-[#238636] hover:bg-[#2ea043] text-white px-3 py-2.5 transition-colors"
+                                  >
                                     <ChevronDown className="h-4 w-4" />
                                   </button>
                                 </div>
-                                {/* Dropdown logic could go here */}
+                                {mergeMenuOpen && (
+                                  <div className="absolute left-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-xl border border-[#30363d] bg-[#0d1117] shadow-2xl">
+                                    {[
+                                      ["merge", "Create a merge commit"],
+                                      ["squash", "Squash and merge"],
+                                      ["rebase", "Rebase and merge"],
+                                    ].map(([method, label]) => (
+                                      <button
+                                        key={method}
+                                        type="button"
+                                        onClick={() => handleMerge(method)}
+                                        disabled={merging}
+                                        className="block w-full px-4 py-3 text-left text-xs font-bold text-[#c9d1d9] hover:bg-[#21262d] hover:text-[#f0f6fc] disabled:opacity-50"
+                                      >
+                                        {label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                             ) : !pr.hasConflicts && (
                               <div className="bg-[#161b22] border border-[#30363d] px-4 py-2.5 rounded-xl text-sm font-medium text-[#8b949e] flex items-center gap-2">
-                                 <Clock size={16} /> Waiting for maintainer approval
+                                 <Clock size={16} /> Waiting for owner approval
                               </div>
                             )}
                             
@@ -337,6 +373,9 @@ export default function PullRequestDetails() {
                                <div className="flex gap-2">
                                   <button onClick={() => handleReview("approve")} className="bg-[#161b22] hover:bg-[#238636]/20 text-[#3fb950] px-5 py-2.5 rounded-xl border border-[#30363d] hover:border-[#3fb950] text-sm font-bold transition-all flex items-center gap-2">
                                      <CheckCircle size={16} /> Approve
+                                  </button>
+                                  <button onClick={handleReject} className="bg-[#161b22] hover:bg-[#da3633]/20 text-[#f85149] px-5 py-2.5 rounded-xl border border-[#30363d] hover:border-[#da3633] text-sm font-bold transition-all flex items-center gap-2">
+                                     <XCircle size={16} /> Reject
                                   </button>
                                   <button onClick={() => handleReview("request_changes")} className="bg-[#161b22] hover:bg-[#da3633]/20 text-[#f85149] px-5 py-2.5 rounded-xl border border-[#30363d] hover:border-[#da3633] text-sm font-bold transition-all flex items-center gap-2">
                                      <AlertCircle size={16} /> Request Changes
@@ -367,8 +406,8 @@ export default function PullRequestDetails() {
                     />
                     <div className="flex items-center justify-between pt-2">
                        <div className="flex items-center gap-4 text-[#8b949e]">
-                          <button className="hover:text-[#f0f6fc] transition-colors"><Eye size={18} /></button>
-                          <button className="hover:text-[#f0f6fc] transition-colors"><Plus size={18} /></button>
+                          <button type="button" onClick={() => setActiveTab("files")} title="Preview changed files" className="hover:text-[#f0f6fc] transition-colors"><Eye size={18} /></button>
+                          <button type="button" onClick={() => setComment(prev => `${prev}${prev ? "\n" : ""}- `)} title="Insert list item" className="hover:text-[#f0f6fc] transition-colors"><Plus size={18} /></button>
                        </div>
                        <button 
                          onClick={handleAddComment}
@@ -425,8 +464,8 @@ export default function PullRequestDetails() {
                       Showing <span className="text-[#f0f6fc] font-bold">{changedFiles.length} changed {changedFiles.length === 1 ? "file" : "files"}</span> with <span className="text-[#3fb950] font-bold">{additions} additions</span> and <span className="text-[#f85149] font-bold">{deletions} deletions</span>
                    </div>
                    <div className="flex items-center gap-2">
-                      <button className="px-3 py-1.5 bg-[#161b22] border border-[#30363d] rounded-lg text-xs font-bold text-[#c9d1d9] hover:bg-[#30363d] transition-all">Unified</button>
-                      <button className="px-3 py-1.5 bg-transparent border border-transparent rounded-lg text-xs font-bold text-[#8b949e] hover:text-[#f0f6fc] transition-all">Split</button>
+                      <button onClick={() => setDiffView("unified")} className={`px-3 py-1.5 border rounded-lg text-xs font-bold transition-all ${diffView === "unified" ? "bg-[#161b22] border-[#30363d] text-[#c9d1d9]" : "bg-transparent border-transparent text-[#8b949e] hover:text-[#f0f6fc]"}`}>Unified</button>
+                      <button onClick={() => setDiffView("split")} className={`px-3 py-1.5 border rounded-lg text-xs font-bold transition-all ${diffView === "split" ? "bg-[#161b22] border-[#30363d] text-[#c9d1d9]" : "bg-transparent border-transparent text-[#8b949e] hover:text-[#f0f6fc]"}`}>Split</button>
                    </div>
                 </div>
                 
@@ -443,6 +482,7 @@ export default function PullRequestDetails() {
                         diffText={file.patch || file.diff || "No changes detected in this file."} 
                         comments={pr.comments || []}
                         onAddComment={handleAddInlineComment}
+                        viewMode={diffView}
                       />
                     ))
                   ) : (

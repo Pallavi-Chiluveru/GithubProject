@@ -55,7 +55,7 @@ export default function ObservabilityDashboard() {
             Identity Observability Dashboard
           </h2>
           <p className="text-xs text-[var(--text-secondary)] mt-1">
-            Real-time attribution telemetry and verification pipelines for Gitea & Antigravity integration.
+            Real-time attribution telemetry and verification pipelines for Gitea & RepoSphere integration.
           </p>
         </div>
         <button

@@ -32,8 +32,19 @@ import {
 import { FaGithub } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { io } from "socket.io-client";
 import API from '../api';
 import GithubIcon from './GithubIcon';
+
+let topNavSocket = null;
+function getTopNavSocket() {
+  if (!topNavSocket) {
+    topNavSocket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:5000", {
+      withCredentials: true,
+    });
+  }
+  return topNavSocket;
+}
 
 const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
   const navigate = useNavigate();
@@ -41,16 +52,18 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const [isOrgDropdownOpen, setIsOrgDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [organizations, setOrganizations] = useState([]);
   const dropdownRef = useRef(null);
   const profileRef = useRef(null);
   const copilotRef = useRef(null);
   const orgRef = useRef(null);
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const currentUserId = user._id || user.id;
 
   const [copilotInput, setCopilotInput] = useState('');
   const [chatHistory, setChatHistory] = useState([
-    { role: 'bot', text: "Hi! I'm CodeForge Agent. I can help you with code completion, explaining code, or generating new functions. How can I help you today?" }
+    { role: 'bot', text: "Hi! I'm RepoSphere Agent. I can help you with code completion, explaining code, or generating new functions. How can I help you today?" }
   ]);
   const [isCopilotLoading, setIsCopilotLoading] = useState(false);
 
@@ -87,6 +100,23 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
   }, []);
 
   useEffect(() => {
+    if (!currentUserId) return;
+
+    API.get("/notification-api/unread-count")
+      .then(res => setUnreadCount(res.data.count || 0))
+      .catch(() => {});
+
+    const socket = getTopNavSocket();
+    socket.emit("join", currentUserId);
+    const handler = () => setUnreadCount(prev => prev + 1);
+    socket.on("new_notification", handler);
+
+    return () => {
+      socket.off("new_notification", handler);
+    };
+  }, [currentUserId]);
+
+  useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
@@ -106,6 +136,10 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
   }, []);
 
   const handleLogout = () => {
+    if (topNavSocket) {
+      topNavSocket.disconnect();
+      topNavSocket = null;
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     window.location.href = "/";
@@ -129,8 +163,9 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-3">
-          <Link to="/dashboard">
+          <Link to="/dashboard" className="flex items-center gap-2">
             <GithubIcon className="w-12 h-12 object-contain hover:opacity-80 cursor-pointer transition-opacity" />
+            <span className="hidden md:block text-base font-black tracking-wide text-[var(--text-primary)]">RepoSphere</span>
           </Link>
           
           <div className="relative" ref={orgRef}>
@@ -263,10 +298,16 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
           ].map((item, i) => (
             <button 
               key={i} 
-              onClick={() => navigate(item.path)}
-              className="p-2 hover:bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              onClick={() => {
+                if (item.path === "/notifications") setUnreadCount(0);
+                navigate(item.path);
+              }}
+              className="relative p-2 hover:bg-[var(--bg-tertiary)] rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
             >
               <item.Icon className="w-4 h-4" />
+              {item.path === "/notifications" && unreadCount > 0 && (
+                <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-[#f85149] ring-2 ring-[var(--bg-primary)]" />
+              )}
             </button>
           ))}
         </div>
@@ -277,7 +318,7 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
             className="w-7 h-7 rounded-full overflow-hidden border border-[var(--border-color)] cursor-pointer hover:border-[#8b949e] ml-2"
           >
             <img 
-              src={`https://ui-avatars.com/api/?name=${user.username || 'User'}&background=random`} 
+              src={user?.profileImageUrl || `https://ui-avatars.com/api/?name=${user.username || 'User'}&background=random`} 
               alt="Avatar" 
               className="w-full h-full object-cover"
             />
@@ -290,7 +331,7 @@ const TopNavbar = ({ onMenuClick, title = "Dashboard" }) => {
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full overflow-hidden border border-[var(--border-color)]">
                     <img 
-                      src={`https://ui-avatars.com/api/?name=${user.username || 'User'}&background=random`} 
+                      src={user?.profileImageUrl || `https://ui-avatars.com/api/?name=${user.username || 'User'}&background=random`} 
                       alt="Avatar" 
                       className="w-full h-full object-cover"
                     />

@@ -43,6 +43,17 @@ const issueSchema = new Schema(
         type: String,
       },
     ],
+
+    projectId: {
+      type: Schema.Types.ObjectId,
+      ref: "Project",
+    },
+
+    milestone: {
+      type: String,
+      default: "",
+      trim: true,
+    },
   },
   { timestamps: true }
 );

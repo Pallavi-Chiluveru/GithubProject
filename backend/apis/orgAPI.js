@@ -380,20 +380,12 @@ orgApp.delete("/remove-member", verifyToken, async (req, res) => {
     const { orgId, memberId } = req.body;
 
     const { allowed, role: requesterRole, org } = await getUserOrgRole(orgId, req.user.id);
-    if (!allowed || !MANAGEABLE_ROLES.includes(requesterRole)) {
-      return res.status(403).json({ message: "Only owners and admins can remove members" });
+    if (!allowed || requesterRole !== "OWNER") {
+      return res.status(403).json({ message: "Only the organization owner can remove members" });
     }
 
     if (org.owner.toString() === memberId) {
       return res.status(400).json({ message: "Cannot remove the organization owner" });
-    }
-
-    // Prevent admin from removing owner or another admin (only owner can do that)
-    if (requesterRole === "ADMIN") {
-      const targetMember = await OrgMemberModel.findOne({ organization: orgId, user: memberId });
-      if (targetMember && targetMember.role === "ADMIN") {
-        return res.status(403).json({ message: "Admins cannot remove other admins" });
-      }
     }
 
     // Remove from normalized table

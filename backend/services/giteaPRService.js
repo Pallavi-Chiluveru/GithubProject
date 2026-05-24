@@ -118,7 +118,7 @@ export const mergeGiteaPR = async (giteaUsername, repoName, giteaToken, prNumber
       `/repos/${giteaUsername}/${repoName}/pulls/${prNumber}/merge`,
       {
         Do: mergeMethod,
-        merge_message_field: mergeMessage || `Merged PR #${prNumber} via Antigravity`,
+        merge_message_field: mergeMessage || `Merged PR #${prNumber} via RepoSphere`,
         delete_branch_after_merge: false,
       }
     );

@@ -22,7 +22,7 @@ function generateGiteaTokenViaCli(username, giteaUserId) {
     // 1. Delete conflicting token from SQLite first
     if (giteaUserId) {
       try {
-        const deleteDbCmd = `docker exec -u 1000 github-clone-gitea sqlite3 /data/gitea/gitea.db "DELETE FROM access_token WHERE uid = ${giteaUserId} AND name = 'antigravity-platform';"`;
+        const deleteDbCmd = `docker exec -u 1000 github-clone-gitea sqlite3 /data/gitea/gitea.db "DELETE FROM access_token WHERE uid = ${giteaUserId} AND name = 'reposphere-platform';"`;
         execSync(deleteDbCmd);
         console.log(`[Gitea SQLite] Cleaned up existing token for UID ${giteaUserId} (username: ${username})`);
       } catch (dbErr) {
@@ -31,7 +31,7 @@ function generateGiteaTokenViaCli(username, giteaUserId) {
     }
 
     // 2. Generate new token via Gitea CLI with "--scopes all" for full permissions!
-    const cmd = `docker exec -u 1000 github-clone-gitea gitea admin user generate-access-token --username ${username} --token-name antigravity-platform --scopes all`;
+    const cmd = `docker exec -u 1000 github-clone-gitea gitea admin user generate-access-token --username ${username} --token-name reposphere-platform --scopes all`;
     const output = execSync(cmd).toString().trim();
     const match = output.match(/Access token was successfully created: ([a-f0-9]+)/);
     if (match && match[1]) {
@@ -95,7 +95,7 @@ async function syncAll() {
 
     // Clean up old token if any (Gitea API)
     try {
-      await adminClient().delete(`/users/${giteaInfo.giteaUsername}/tokens/antigravity-platform`);
+      await adminClient().delete(`/users/${giteaInfo.giteaUsername}/tokens/reposphere-platform`);
       console.log(`Removed old access tokens for ${giteaInfo.giteaUsername}.`);
     } catch (_) {}
 

@@ -55,6 +55,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         <div className="flex items-center justify-between px-5 py-4 bg-[var(--sidebar-bg)] z-10 border-b border-[var(--border-color)] mt-2">
           <div className="flex items-center gap-2 pl-1">
             <GithubIcon className="h-9 object-contain" />
+            <span className="text-sm font-black tracking-wide text-[var(--text-primary)]">RepoSphere</span>
           </div>
           <button
             onClick={() => setIsOpen(false)}
@@ -74,7 +75,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             <SidebarItem icon={MessageSquare} label="Discussions" to="/discussions" onClick={() => setIsOpen(false)} />
 
             <SidebarItem icon={Cpu} label="Copilot" to="/copilot" onClick={() => setIsOpen(false)} />
-            <SidebarItem icon={Sparkles} label="Learn GitHub" to="/companion" onClick={() => setIsOpen(false)} />
+            <SidebarItem icon={Sparkles} label="Learn RepoSphere" to="/companion" onClick={() => setIsOpen(false)} />
           </div>
         </div>
       </aside>

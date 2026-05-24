@@ -111,7 +111,7 @@ workflowApp.post("/:repoId/trigger", verifyToken, async (req, res) => {
           `========================================\n` +
           `Uploading build assets to cloud bucket...\n` +
           `Syncing edge servers...\n` +
-          `SUCCESS: Deployment complete. Live at https://staging-antigravity.dev\n\n` +
+          `SUCCESS: Deployment complete. Live at https://staging-reposphere.dev\n\n` +
           `========================================\n` +
           `CI/CD WORKFLOW SUITE PASSED SUCCESSFULLY!\n` +
           `========================================`;

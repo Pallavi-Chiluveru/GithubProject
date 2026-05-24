@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Users, Search, UserPlus, Mail, Filter, MoreVertical, Shield, User, 
   Check, X, Trash2, RefreshCw, ChevronDown, Info, ArrowRight, Clock, 
@@ -153,7 +154,8 @@ const PermissionPanel = ({ roleKey, customPermissions, onToggleCustom }) => {
   );
 };
 
-const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, currentUserId, isLoading, forceOpenInvite, onCloseInvite }) => {
+const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, currentUserId, canRemoveMembers = false, canInviteMembers = false, isLoading, forceOpenInvite, onCloseInvite }) => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [memberSearchQuery, setMemberSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -162,6 +164,7 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
   const [isInviteDrawerOpen, setIsInviteDrawerOpen] = useState(false);
   const [showToast, setShowToast] = useState(null);
   const [activeMenu, setActiveMenu] = useState(null);
+  const [roleEditor, setRoleEditor] = useState(null);
   
   const [selectedInvites, setSelectedInvites] = useState([]);
   const [confirmInvite, setConfirmInvite] = useState(null);
@@ -169,10 +172,10 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
   // Handle forced open from parent
   useEffect(() => {
     if (forceOpenInvite) {
-      setIsInviteDrawerOpen(true);
+      if (canInviteMembers) setIsInviteDrawerOpen(true);
       if (onCloseInvite) onCloseInvite(); // Reset the flag in parent
     }
-  }, [forceOpenInvite, onCloseInvite]);
+  }, [forceOpenInvite, onCloseInvite, canInviteMembers]);
 
   const triggerToast = (msg, type = 'success') => {
     setShowToast({ msg, type });
@@ -285,6 +288,21 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
   });
 
   const pendingInvites = []; // This would normally come from backend
+  const editableRoles = Object.entries(ROLE_CONFIGS).filter(([role]) => role !== ROLES.OWNER);
+
+  const handleViewProfile = (member) => {
+    const username = member.user?.username;
+    if (!username) return;
+    setActiveMenu(null);
+    navigate(`/profile/${username}`);
+  };
+
+  const handleRoleChange = async (role) => {
+    if (!roleEditor?.user?._id) return;
+    await onChangeRole(roleEditor.user._id, role);
+    triggerToast(`${roleEditor.user.username}'s role changed to ${ROLE_CONFIGS[role]?.title || role}`);
+    setRoleEditor(null);
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -306,7 +324,7 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
       </AnimatePresence>
 
       {/* Header Controls */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-[#111827]/40 p-4 rounded-2xl border border-[#30363d]/50 backdrop-blur-sm">
+      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-[var(--bg-secondary)] p-4 rounded-xl border border-[var(--border-color)] shadow-sm">
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
           <input 
@@ -314,23 +332,23 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
             placeholder="Search members by name or email..."
             value={memberSearchQuery}
             onChange={(e) => setMemberSearchQuery(e.target.value)}
-            className="w-full bg-[#0B1120] border border-[#30363d] rounded-xl py-2.5 pl-10 pr-4 text-sm text-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#6366F1]/50 transition-all placeholder:text-[#9CA3AF]/50"
+            className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl py-2.5 pl-10 pr-4 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[#2f81f7]/30 transition-all placeholder:text-[var(--text-secondary)]"
           />
         </div>
         
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative group">
-            <button className="flex items-center gap-2 px-4 py-2.5 bg-[#0B1120] border border-[#30363d] rounded-xl text-sm font-medium text-[#E5E7EB] hover:border-[#6366F1]/50 transition-all">
+            <button className="flex items-center gap-2 px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl text-sm font-medium text-[var(--text-primary)] hover:border-[#2f81f7]/50 transition-all">
               <Filter className="w-4 h-4 text-[#9CA3AF]" />
               {filterRole}
               <ChevronDown className="w-3 h-3 text-[#9CA3AF]" />
             </button>
-            <div className="absolute top-full right-0 mt-2 w-40 bg-[#111827] border border-[#30363d] rounded-xl shadow-2xl z-50 py-1 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all translate-y-2 group-hover:translate-y-0">
+            <div className="absolute top-full right-0 mt-2 w-40 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl shadow-2xl z-50 py-1 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all translate-y-2 group-hover:translate-y-0">
               {['All', 'OWNER', 'MAINTAINER', 'COLLABORATOR', 'CONTRIBUTOR', 'VIEWER'].map(role => (
                 <button 
                   key={role}
                   onClick={() => setFilterRole(role)}
-                  className="w-full text-left px-4 py-2 text-sm text-[#9CA3AF] hover:text-white hover:bg-[#6366F1]/10 transition-colors"
+                  className="w-full text-left px-4 py-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
                 >
                   {role === 'All' ? 'All Roles' : role.charAt(0) + role.slice(1).toLowerCase()}
                 </button>
@@ -338,13 +356,15 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
             </div>
           </div>
           
-          <button 
-            onClick={() => setIsInviteDrawerOpen(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-[#6366F1] hover:bg-[#4F46E5] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#6366F1]/20 transition-all active:scale-95"
-          >
-            <UserPlus className="w-4 h-4" />
-            Invite Member
-          </button>
+          {canInviteMembers && (
+            <button
+              onClick={() => setIsInviteDrawerOpen(true)}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-[#238636] hover:bg-[#2ea043] text-white rounded-xl text-sm font-bold shadow-lg transition-all active:scale-95"
+            >
+              <UserPlus className="w-4 h-4" />
+              Invite Member
+            </button>
+          )}
         </div>
       </div>
 
@@ -368,7 +388,7 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="group relative bg-[#111827] border border-[#30363d]/50 rounded-2xl p-5 hover:border-[#6366F1]/30 transition-all hover:shadow-2xl hover:shadow-[#6366F1]/5"
+                  className="group relative bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl p-5 hover:border-[#2f81f7]/40 transition-all shadow-sm"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-4">
@@ -376,18 +396,18 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
                         <img 
                           src={member.user?.profileImageUrl || `https://ui-avatars.com/api/?name=${member.user?.username}&background=random`} 
                           alt="" 
-                          className="w-12 h-12 rounded-2xl object-cover border border-[#30363d] shadow-inner"
+                          className="w-12 h-12 rounded-xl object-cover border border-[var(--border-color)] shadow-inner"
                         />
-                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#111827] ${member.user?.isUserActive ? 'bg-[#10b981]' : 'bg-[#9CA3AF]'}`} />
+                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[var(--bg-secondary)] ${member.user?.isUserActive ? 'bg-[#10b981]' : 'bg-[#9CA3AF]'}`} />
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-[#E5E7EB] flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
                           {member.user?.username}
                           {member.user?._id === currentUserId && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#6366F1]/20 text-[#6366F1]">You</span>
                           )}
                         </h3>
-                        <p className="text-xs text-[#9CA3AF] mt-0.5">{member.user?.email}</p>
+                        <p className="text-xs text-[var(--text-secondary)] mt-0.5">{member.user?.email}</p>
                         <div className="flex items-center gap-3 mt-3">
                           <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border flex items-center gap-1.5 ${
                             ROLE_CONFIGS[member.role]?.bg || 'bg-indigo-500/10'
@@ -395,7 +415,7 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
                             {ROLE_CONFIGS[member.role] ? React.createElement(ROLE_CONFIGS[member.role].icon, { size: 12 }) : <Shield size={12} />}
                             {member.role}
                           </span>
-                          <span className="text-[10px] text-[#9CA3AF] flex items-center gap-1">
+                          <span className="text-[10px] text-[var(--text-secondary)] flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             Joined {new Date(member.createdAt || Date.now()).toLocaleDateString()}
                           </span>
@@ -403,20 +423,41 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
                       </div>
                     </div>
 
+                    {canRemoveMembers && member.user?._id !== currentUserId && member.role !== "OWNER" && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          onRemove(member.user?._id);
+                          triggerToast("Member removed from organization", "error");
+                        }}
+                        className="p-2 rounded-xl text-[#f85149] hover:bg-[#f85149]/10 transition-colors"
+                        title="Remove member"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     <div className="relative">
                       <button 
                         onClick={() => setActiveMenu(activeMenu === idx ? null : idx)}
-                        className="p-2 hover:bg-[#0B1120] rounded-xl text-[#9CA3AF] hover:text-white transition-colors"
+                        className="p-2 hover:bg-[var(--bg-tertiary)] rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </button>
                       
                       {activeMenu === idx && (
-                        <div className="absolute top-full right-0 mt-2 w-48 bg-[#0B1120] border border-[#30363d] rounded-2xl shadow-2xl z-[60] overflow-hidden py-1.5 animate-in zoom-in-95 duration-150">
-                          <button className="w-full text-left px-4 py-2 text-xs text-[#E5E7EB] hover:bg-[#6366F1]/10 flex items-center gap-2 transition-colors">
+                        <div className="absolute top-full right-0 mt-2 w-48 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl shadow-2xl z-[60] overflow-hidden py-1.5 animate-in zoom-in-95 duration-150">
+                          <button
+                            onClick={() => handleViewProfile(member)}
+                            className="w-full text-left px-4 py-2 text-xs text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] flex items-center gap-2 transition-colors"
+                          >
                             <User className="w-3.5 h-3.5" /> View Profile
                           </button>
-                          <button className="w-full text-left px-4 py-2 text-xs text-[#E5E7EB] hover:bg-[#6366F1]/10 flex items-center gap-2 transition-colors">
+                          <button
+                            onClick={() => {
+                              setRoleEditor(member);
+                              setActiveMenu(null);
+                            }}
+                            className="w-full text-left px-4 py-2 text-xs text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] flex items-center gap-2 transition-colors"
+                          >
                             <RefreshCw className="w-3.5 h-3.5" /> Change Role
                           </button>
                           <div className="h-[1px] bg-[#30363d] my-1.5 mx-2" />
@@ -433,6 +474,8 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
                         </div>
                       )}
                     </div>
+                    </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -447,12 +490,14 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
                 <p className="text-[#9CA3AF] text-sm max-w-xs mx-auto mb-8">
                   No results match your search or filter. Try adjusting your criteria or invite new members.
                 </p>
-                <button 
-                  onClick={() => setIsInviteDrawerOpen(true)}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#6366F1] text-white rounded-xl text-sm font-bold shadow-lg shadow-[#6366F1]/20 transition-all hover:scale-105"
-                >
-                  Invite Your First Member
-                </button>
+                {canInviteMembers && (
+                  <button
+                    onClick={() => setIsInviteDrawerOpen(true)}
+                    className="flex items-center gap-2 px-6 py-3 bg-[#238636] text-white rounded-xl text-sm font-bold shadow-lg transition-all hover:scale-105"
+                  >
+                    Invite Your First Member
+                  </button>
+                )}
               </div>
             )}
           </>
@@ -642,6 +687,67 @@ const OrgMembersView = ({ orgId, members, onRemove, onChangeRole, onInvite, curr
           onCancel={() => setConfirmInvite(null)}
         />
       )}
+
+      <AnimatePresence>
+        {roleEditor && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setRoleEditor(null)}
+              className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 16 }}
+              className="fixed left-1/2 top-1/2 z-[130] w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-primary)] p-5 shadow-2xl"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--text-primary)]">Change role</h3>
+                  <p className="mt-1 text-xs text-[var(--text-secondary)]">
+                    Update {roleEditor.user?.username}'s access in this organization.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setRoleEditor(null)}
+                  className="rounded-lg p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]"
+                  aria-label="Close role editor"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-5 space-y-2">
+                {editableRoles.map(([role, config]) => (
+                  <button
+                    key={role}
+                    onClick={() => handleRoleChange(role)}
+                    className={`w-full rounded-xl border p-3 text-left transition-all hover:border-[#2f81f7]/60 hover:bg-[var(--bg-secondary)] ${
+                      roleEditor.role === role ? 'border-[#2f81f7] bg-[#2f81f7]/10' : 'border-[var(--border-color)] bg-[var(--bg-secondary)]/50'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`mt-0.5 rounded-lg border p-2 ${config.bg} ${config.border}`}>
+                        <config.icon className={`h-4 w-4 ${config.color}`} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 text-sm font-bold text-[var(--text-primary)]">
+                          {config.title}
+                          {roleEditor.role === role && <Check className="h-3.5 w-3.5 text-[#10b981]" />}
+                        </div>
+                        <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">{config.description}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -63,7 +63,7 @@ async function patchUser() {
 
   // Delete old token if exists
   try {
-    await axios.delete(`${GITEA_BASE}/api/v1/users/${USERNAME}/tokens/antigravity-platform`, {
+    await axios.delete(`${GITEA_BASE}/api/v1/users/${USERNAME}/tokens/reposphere-platform`, {
       auth: { username: USERNAME, password: PASSWORD }
     });
     console.log("[Gitea] Removed old token (if any)");
@@ -73,7 +73,7 @@ async function patchUser() {
   const tokenRes = await axios.post(
     `${GITEA_BASE}/api/v1/users/${USERNAME}/tokens`,
     {
-      name: "antigravity-platform",
+      name: "reposphere-platform",
       scopes: [
         "write:repository",
         "read:user",

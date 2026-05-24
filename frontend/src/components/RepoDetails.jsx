@@ -530,7 +530,7 @@ export default function RepoDetails() {
   if (!repo) return (
     <div className="flex h-screen flex-col items-center justify-center bg-[var(--bg-primary)] text-[var(--text-secondary)]">
       <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#2f81f7] border-t-transparent mb-4"></div>
-      <p className="text-lg font-bold animate-pulse">Initializing CodeForge Data...</p>
+      <p className="text-lg font-bold animate-pulse">Initializing RepoSphere Data...</p>
     </div>
   );
 

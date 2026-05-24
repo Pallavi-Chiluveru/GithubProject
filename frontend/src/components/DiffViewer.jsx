@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MessageSquare, Plus, Send } from 'lucide-react';
 
-export default function DiffViewer({ fileName, diffText, comments = [], onAddComment }) {
+export default function DiffViewer({ fileName, diffText, comments = [], onAddComment, viewMode = "unified" }) {
   const [activeLine, setActiveLine] = useState(null);
   const [commentText, setCommentText] = useState("");
 
@@ -24,7 +24,7 @@ export default function DiffViewer({ fileName, diffText, comments = [], onAddCom
       </div>
       
       <div className="overflow-x-auto">
-        <div className="min-w-full font-mono text-[13px] leading-6">
+        <div className={`min-w-full font-mono text-[13px] leading-6 ${viewMode === "split" ? "grid grid-cols-1 lg:grid-cols-2" : ""}`}>
           {lines.map((line, i) => {
             const lineNumber = i + 1;
             const isAdded = line.startsWith('+');
@@ -37,7 +37,7 @@ export default function DiffViewer({ fileName, diffText, comments = [], onAddCom
             return (
               <React.Fragment key={i}>
                 <div 
-                  className={`group flex ${bgColor} hover:brightness-125 transition-all relative cursor-pointer`}
+                  className={`group flex ${bgColor} hover:brightness-125 transition-all relative cursor-pointer ${viewMode === "split" && isAdded ? "lg:col-start-2" : ""} ${viewMode === "split" && isRemoved ? "lg:col-start-1" : ""} ${viewMode === "split" && !isAdded && !isRemoved ? "lg:col-span-2" : ""}`}
                   onClick={() => setActiveLine(activeLine === lineNumber ? null : lineNumber)}
                 >
                   {/* Line Number Column */}

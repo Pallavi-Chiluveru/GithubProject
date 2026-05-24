@@ -50,7 +50,7 @@ export default function ActionsTab({ repoId }) {
     setTriggering(true);
     try {
       const res = await API.post(`/workflow-api/${repoId}/trigger`, {
-        workflowName: "CodeForge Build & Test Suite",
+        workflowName: "RepoSphere Build & Test Suite",
         workflowFile: ".github/workflows/build-test.yml"
       });
       // Add immediately to local runs list

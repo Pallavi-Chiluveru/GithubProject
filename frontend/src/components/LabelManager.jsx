@@ -9,6 +9,7 @@ export default function LabelManager({ repoId }) {
   const [isAdding, setIsAdding] = useState(false);
   const [newLabel, setNewLabel] = useState({ name: "", color: "#2f81f7", description: "" });
   const [editingId, setEditingId] = useState(null);
+  const [editLabel, setEditLabel] = useState({ name: "", color: "#2f81f7", description: "" });
 
   const colors = [
     "#2f81f7", "#238636", "#da3633", "#d29922", "#8957e5", "#db6d28", 
@@ -48,6 +49,23 @@ export default function LabelManager({ repoId }) {
       await API.delete(`/label-api/${id}`);
       fetchLabels();
     } catch (err) { console.error(err); }
+  };
+
+  const startEdit = (label) => {
+    setEditingId(label._id);
+    setEditLabel({ name: label.name, color: label.color, description: label.description || "" });
+  };
+
+  const handleUpdate = async () => {
+    if (!editingId || !editLabel.name) return;
+    try {
+      await API.patch(`/label-api/${editingId}`, editLabel);
+      setEditingId(null);
+      setEditLabel({ name: "", color: "#2f81f7", description: "" });
+      fetchLabels();
+    } catch (err) {
+      alert(err.response?.data?.message || "Error updating label");
+    }
   };
 
   return (
@@ -138,19 +156,31 @@ export default function LabelManager({ repoId }) {
         ) : labels.length > 0 ? (
           labels.map(label => (
             <div key={label._id} className="p-4 bg-[var(--bg-secondary)] flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-all">
-              <div className="flex items-center gap-4">
-                <span 
-                  className="px-2.5 py-1 rounded-full text-[10px] font-bold text-white shadow-sm"
-                  style={{ backgroundColor: label.color }}
-                >
-                  {label.name}
-                </span>
-                <span className="text-xs text-[var(--text-secondary)] line-clamp-1">{label.description}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"><Edit2 size={14} /></button>
-                <button onClick={() => handleDelete(label._id)} className="p-1.5 text-[var(--text-secondary)] hover:text-red-500 transition-all"><Trash2 size={14} /></button>
-              </div>
+              {editingId === label._id ? (
+                <div className="flex w-full flex-col gap-3 md:flex-row md:items-center">
+                  <input value={editLabel.name} onChange={(e) => setEditLabel({ ...editLabel, name: e.target.value })} className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] px-3 py-2 text-sm outline-none focus:border-[#2f81f7]" />
+                  <input value={editLabel.description} onChange={(e) => setEditLabel({ ...editLabel, description: e.target.value })} className="min-w-0 flex-1 rounded-lg border border-[var(--border-color)] bg-[var(--bg-primary)] px-3 py-2 text-sm outline-none focus:border-[#2f81f7]" />
+                  <input type="color" value={editLabel.color} onChange={(e) => setEditLabel({ ...editLabel, color: e.target.value })} className="h-9 w-10 rounded bg-transparent" />
+                  <button onClick={handleUpdate} className="rounded-lg bg-[#238636] px-3 py-2 text-xs font-bold text-white hover:bg-[#2ea043]"><Check size={14} /></button>
+                  <button onClick={() => setEditingId(null)} className="rounded-lg px-3 py-2 text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"><X size={14} /></button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-4">
+                    <span 
+                      className="px-2.5 py-1 rounded-full text-[10px] font-bold text-white shadow-sm"
+                      style={{ backgroundColor: label.color }}
+                    >
+                      {label.name}
+                    </span>
+                    <span className="text-xs text-[var(--text-secondary)] line-clamp-1">{label.description}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => startEdit(label)} className="p-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all"><Edit2 size={14} /></button>
+                    <button onClick={() => handleDelete(label._id)} className="p-1.5 text-[var(--text-secondary)] hover:text-red-500 transition-all"><Trash2 size={14} /></button>
+                  </div>
+                </>
+              )}
             </div>
           ))
         ) : (

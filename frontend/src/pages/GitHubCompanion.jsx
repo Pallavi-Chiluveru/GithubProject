@@ -116,7 +116,7 @@ const SECTION_DATA = [
   },
   {
     id: 'why',
-    title: 'Why GitHub?',
+    title: 'Why RepoSphere?',
     icon: Rocket,
     color: 'text-purple-400',
     bg: 'bg-purple-400/10',
@@ -135,7 +135,7 @@ Modern software development is a team sport. GitHub provides the playground and 
 ### 🎓 Why Students Should Learn It
 *   **Proof of Skill:** Show, don't just tell. A green contribution graph proves you code consistently.
 *   **Learn from Pros:** Read the source code of your favorite apps to see how they are structured.
-*   **Team Experience:** Most internships and jobs expect you to know the GitHub workflow on Day 1.
+*   **Team Experience:** Most internships and jobs expect you to know the RepoSphere workflow on Day 1.
 
 ### 🚩 Common Beginner Mistakes
 *   **The "Final" Folder:** Thinking that manually saving versions is better than using Git.
@@ -144,7 +144,7 @@ Modern software development is a team sport. GitHub provides the playground and 
   },
   {
     id: 'git-vs-github',
-    title: 'Git vs GitHub',
+    title: 'Git vs RepoSphere',
     icon: GitBranch,
     color: 'text-orange-400',
     bg: 'bg-orange-400/10',
@@ -198,7 +198,7 @@ A **Repository** (or "Repo") is the home for your project. It’s more than a fo
 When you create a repo, Git creates a hidden \`.git\` folder. This folder is a database that stores every version of every file you've ever committed.
 
 > [!IMPORTANT]
-> **Real-World Organization:** In big companies, repositories are often organized into "Organizations." For example, Google has thousands of repositories under the \`google\` organization on GitHub.
+> **Real-World Organization:** In big companies, repositories are often organized into "Organizations." For example, Google has thousands of repositories under the \`google\` organization on RepoSphere.
     `
   },
   {
@@ -268,7 +268,7 @@ A Pull Request (PR) is an invitation for others to review your work before it's 
     content: `
 # Teamwork at Scale
 
-Collaboration on GitHub is governed by permissions and roles. This ensures that only authorized people can change critical code.
+Collaboration on RepoSphere is governed by permissions and roles. This ensures that only authorized people can change critical code.
 
 ### 👥 Contributor Roles
 *   **Owner:** Can do anything, including deleting the repository.
@@ -503,7 +503,7 @@ Stars are the "Like" button of the developer world.
     icon: CheckCircle,
     color: 'text-green-500',
     bg: 'bg-green-500/10',
-    description: 'The golden rules of professional software engineering on GitHub.',
+    description: 'The golden rules of professional software engineering on RepoSphere.',
     content: `
 # Professional Engineering Standards
 
@@ -526,7 +526,7 @@ Writing code is only half the battle. Maintaining it in a team requires discipli
 *   **Automate Everything:** If you find yourself doing a manual task twice, write a GitHub Action for it.
 
 > [!TIP]
-> **Clean Code:** Always run your tests locally before you push. A "failed" build on GitHub is a sign of poor discipline.
+> **Clean Code:** Always run your tests locally before you push. A "failed" build on RepoSphere is a sign of poor discipline.
     `
   },
   {
@@ -547,7 +547,7 @@ Writing code is only half the battle. Maintaining it in a team requires discipli
     description: 'Answering the burning questions of new Git users.',
     isFAQSection: true,
     faqs: [
-      { q: 'What is "origin"?', a: 'Origin is the default name Git gives to the remote repository on GitHub that you cloned from. It\'s just a shortcut name for the URL.' },
+      { q: 'What is "origin"?', a: 'Origin is the default name Git gives to the remote repository on RepoSphere that you cloned from. It\'s just a shortcut name for the URL.' },
       { q: 'Why should I use Branches?', a: 'Because if you make a mistake on a branch, you haven\'t broken the live website. It allows you to experiment safely.' },
       { q: 'What is the difference between Fork and Clone?', a: 'Cloning makes a local copy on your computer. Forking makes a copy in your GitHub account. Usually, you fork a project first, then clone your fork.' },
       { q: 'Can I delete a commit after pushing it?', a: 'Yes, but it\'s difficult and can break things for your teammates. It\'s better to use `git revert`, which creates a new commit that undoes the changes.' },
@@ -619,7 +619,7 @@ const IntroductionContent = ({ onNext }) => {
             <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
               <Globe className="w-4 h-4 text-blue-400" />
             </div>
-            What is GitHub?
+            What is RepoSphere?
           </h2>
           <p className="text-[#8b949e] leading-relaxed text-lg max-w-3xl">
             GitHub is a cloud-based platform built around Git, the most widely used version control system in the world. It is the complete collaboration platform for modern software engineering.
@@ -654,7 +654,7 @@ const IntroductionContent = ({ onNext }) => {
       <section className="space-y-12 py-12 px-8 bg-blue-500/[0.02] border border-white/5 rounded-[32px] relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px]" />
         <div className="space-y-4 relative z-10">
-          <h2 className="text-3xl font-bold text-white tracking-tight">Why GitHub Matters</h2>
+          <h2 className="text-3xl font-bold text-white tracking-tight">Why RepoSphere Matters</h2>
           <p className="text-[#8b949e] text-lg max-w-3xl">
             GitHub powers modern software development across startups, enterprises, AI companies, and open-source communities.
           </p>
@@ -737,7 +737,7 @@ const IntroductionContent = ({ onNext }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             { icon: Book, title: 'Git Fundamentals', desc: 'The basics of local version control.' },
-            { icon: RefreshCw, title: 'Git vs GitHub', desc: 'The difference between tool and platform.' },
+            { icon: RefreshCw, title: 'Git vs RepoSphere', desc: 'The difference between tool and platform.' },
             { icon: Box, title: 'Repositories', desc: 'Project structure and organization.' },
             { icon: GitFork, title: 'Branching', desc: 'Parallel development and safe code.' },
             { icon: GitPullRequest, title: 'Pull Requests', desc: 'Collaborative code review workflows.' },
@@ -844,8 +844,8 @@ const IntroductionContent = ({ onNext }) => {
         <div className="flex flex-col items-center gap-6 relative">
           {[
             { id: 'intro', label: 'Introduction', active: true },
-            { id: 'why', label: 'Why GitHub', active: false },
-            { id: 'git-vs-github', label: 'Git vs GitHub', active: false },
+            { id: 'why', label: 'Why RepoSphere', active: false },
+            { id: 'git-vs-github', label: 'Git vs RepoSphere', active: false },
             { id: 'repositories', label: 'Repositories', active: false },
             { id: 'branches', label: 'Branches', active: false },
             { id: 'pull-requests', label: 'Pull Requests', active: false },
@@ -1153,7 +1153,7 @@ const WhyGitHubContent = ({ onNext }) => {
 
       {/* SECTION 7 — WHY STUDENTS SHOULD LEARN GITHUB */}
       <section className="space-y-12">
-        <h2 className="text-3xl font-bold text-white tracking-tight text-center">Why Students Should Learn GitHub</h2>
+        <h2 className="text-3xl font-bold text-white tracking-tight text-center">Why Students Should Learn RepoSphere</h2>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {[
             { icon: Star, title: 'Build Portfolio', color: 'text-yellow-400' },
@@ -1421,7 +1421,7 @@ const GitVsGitHubContent = ({ onNext }) => {
       <section className="space-y-12">
         <div className="flex flex-col md:flex-row items-end justify-between gap-6 border-b border-white/5 pb-8">
           <div className="space-y-2 text-right md:order-2">
-            <h2 className="text-3xl font-bold text-white tracking-tight">What is GitHub?</h2>
+            <h2 className="text-3xl font-bold text-white tracking-tight">What is RepoSphere?</h2>
             <p className="text-[#8b949e] max-w-xl">GitHub is a cloud-based platform built around Git that allows developers to host and collaborate.</p>
           </div>
           <div className="px-6 py-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center gap-3 group md:order-1">
@@ -1461,7 +1461,7 @@ const GitVsGitHubContent = ({ onNext }) => {
 
       {/* SECTION 5 — SIDE-BY-SIDE COMPARISON */}
       <section className="space-y-12">
-        <h2 className="text-3xl font-bold text-white tracking-tight text-center">Git vs GitHub Comparison</h2>
+        <h2 className="text-3xl font-bold text-white tracking-tight text-center">Git vs RepoSphere Comparison</h2>
         
         <div className="overflow-x-auto rounded-[32px] border border-white/5 bg-[#1C2128]/50 shadow-2xl">
           <table className="w-full text-left border-collapse min-w-[600px]">
@@ -1794,7 +1794,7 @@ const RepositoriesContent = ({ onNext }) => {
           
           <div className="space-y-12 relative">
             {[
-              { icon: Plus, title: 'Create Repository', desc: 'Initialize the project home on GitHub.' },
+              { icon: Plus, title: 'Create Repository', desc: 'Initialize the project home on RepoSphere.' },
               { icon: Code, title: 'Add Files', desc: 'Create your source code and project structure.' },
               { icon: History, title: 'Commit Changes', desc: 'Save snapshots of your progress locally.' },
               { icon: Share2, title: 'Push to GitHub', desc: 'Sync your local work with the remote cloud repo.' },
@@ -1908,7 +1908,7 @@ const RepositoriesContent = ({ onNext }) => {
             </div>
             <ul className="space-y-4">
               {[
-                'Visible to everyone on GitHub',
+                'Visible to everyone on RepoSphere',
                 'Used for Open Source projects',
                 'Encourages community contribution',
                 'Great for building a public portfolio'
@@ -2011,7 +2011,7 @@ const RepositoriesContent = ({ onNext }) => {
       {/* SECTION 10 — QUICK FACTS */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { val: '372M+', label: 'Repositories', desc: 'Exist on GitHub today.' },
+          { val: '372M+', label: 'Repositories', desc: 'Exist on RepoSphere today.' },
           { val: '100%', label: 'Trackable', desc: 'Every code change is logged.' },
           { val: 'Standard', label: 'Industry', desc: 'Most projects use Git repos.' },
           { val: 'Global', label: 'Open Source', desc: 'Relies on repositories.' }
@@ -2503,7 +2503,7 @@ const BranchesContent = ({ onNext }) => {
              </div>
              <h3 className="text-2xl font-bold text-white">Remote Branch</h3>
              <ul className="space-y-4 text-[#8b949e]">
-               <li className="flex items-center gap-3"><CheckCircle className="w-4 h-4 text-blue-400" /> <span className="text-sm">Stored on GitHub servers</span></li>
+               <li className="flex items-center gap-3"><CheckCircle className="w-4 h-4 text-blue-400" /> <span className="text-sm">Stored on RepoSphere servers</span></li>
                <li className="flex items-center gap-3"><CheckCircle className="w-4 h-4 text-blue-400" /> <span className="text-sm">Visible to your entire team</span></li>
                <li className="flex items-center gap-3"><CheckCircle className="w-4 h-4 text-blue-400" /> <span className="text-sm">Used for sharing and reviewing code</span></li>
              </ul>
@@ -3178,7 +3178,7 @@ const PullRequestsContent = ({ onNext }) => {
               <div className="space-y-6">
                  <h3 className="text-2xl font-bold text-white">1. Project Setup</h3>
                  <p className="text-[#8b949e] leading-relaxed">
-                    Imagine we are building a simple portfolio website project. The project already exists on GitHub and we want to add a new feature safely.
+                    Imagine we are building a simple portfolio website project. The project already exists on RepoSphere and we want to add a new feature safely.
                  </p>
                  <div className="p-6 bg-[#0D1117] border border-white/10 rounded-2xl space-y-4">
                     <div className="flex items-center gap-2 text-xs text-[#8b949e] border-b border-white/5 pb-2">
@@ -3585,7 +3585,7 @@ const CollaboratorsContent = ({ onNext }) => {
 
       {/* SECTION 5 — HOW TEAM COLLABORATION WORKS */}
       <section className="space-y-16">
-        <h2 className="text-3xl font-bold text-white tracking-tight text-center">How Teams Collaborate on GitHub</h2>
+        <h2 className="text-3xl font-bold text-white tracking-tight text-center">How Teams Collaborate on RepoSphere</h2>
         
         <div className="max-w-4xl mx-auto py-20 relative px-10 bg-[#0D1117] border border-white/10 rounded-[60px] shadow-2xl">
           <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent -translate-y-1/2 hidden lg:block" />
@@ -4886,7 +4886,7 @@ const ProjectsAgileContent = ({ onNext }) => {
           </div>
           <h2 className="text-4xl font-black text-white tracking-tight">Hands-On GitHub Projects Workflow</h2>
           <p className="text-[#8b949e] max-w-2xl mx-auto leading-relaxed">
-            Learn real-world Agile project management using practical GitHub workflows.
+            Learn real-world Agile project management using practical RepoSphere workflows.
           </p>
         </div>
 
@@ -5119,7 +5119,7 @@ const CICDContent = ({ onNext }) => {
            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                  <p className="text-lg text-[#8b949e] leading-relaxed italic">
-                    "GitHub Actions is an automation platform that allows you to run custom scripts directly on GitHub's servers."
+                    "RepoSphere Actions is an automation platform that allows you to run custom scripts directly on RepoSphere's servers."
                  </p>
                  <div className="space-y-4">
                     <div className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl group hover:border-yellow-400/50 transition-all">
@@ -5161,7 +5161,7 @@ const CICDContent = ({ onNext }) => {
                  <span className="text-[#8b949e] w-20 shrink-0">name:</span>
                  <div className="flex-1 space-y-1">
                     <span className="text-green-400">CI Pipeline</span>
-                    <p className="text-[10px] text-[#8b949e] font-sans">The title displayed on GitHub.</p>
+                    <p className="text-[10px] text-[#8b949e] font-sans">The title displayed on RepoSphere.</p>
                  </div>
               </div>
 
@@ -5470,7 +5470,7 @@ const SecurityContent = ({ onNext }) => {
               Security & Secrets
             </h1>
             <p className="text-xl text-[#8b949e] leading-relaxed max-w-2xl mx-auto">
-              Secure your source code, manage sensitive credentials, and implement enterprise-grade protection workflows on GitHub.
+              Secure your source code, manage sensitive credentials, and implement enterprise-grade protection workflows on RepoSphere.
             </p>
           </div>
 
@@ -5505,7 +5505,7 @@ const SecurityContent = ({ onNext }) => {
       {/* SECTION 1 — WHAT IS GITHUB SECURITY? */}
       <section className="space-y-12">
         <div className="text-center space-y-4">
-          <h2 className="text-3xl font-bold text-white tracking-tight">What is GitHub Security?</h2>
+          <h2 className="text-3xl font-bold text-white tracking-tight">What is RepoSphere Security?</h2>
           <p className="text-[#8b949e] max-w-2xl mx-auto leading-relaxed">
             GitHub Security is a suite of tools and best practices designed to protect your code from vulnerabilities and your credentials from being exposed.
           </p>
@@ -5941,7 +5941,7 @@ const GitCommandsContent = ({ onNext }) => {
                 { label: 'Working Directory', desc: 'Untracked Files', icon: Folder, color: 'text-blue-400' },
                 { label: 'Staging Area', desc: 'Ready for Commit', icon: Layers, color: 'text-yellow-400' },
                 { label: 'Local Repo', desc: 'Committed History', icon: Database, color: 'text-green-400' },
-                { label: 'Remote Repo', desc: 'Shared on GitHub', icon: Globe, color: 'text-purple-400' }
+                { label: 'Remote Repo', desc: 'Shared on RepoSphere', icon: Globe, color: 'text-purple-400' }
               ].map((step, i) => (
                 <div key={i} className="flex flex-col items-center gap-6 text-center group">
                    <div className="relative">
@@ -6066,7 +6066,7 @@ const GitCommandsContent = ({ onNext }) => {
           </div>
           <h2 className="text-4xl font-black text-white tracking-tight">Deploying a Portfolio</h2>
           <p className="text-[#8b949e] max-w-2xl mx-auto leading-relaxed text-center italic font-medium">
-            Walk through the exact steps a developer takes to publish their first website on GitHub.
+            Walk through the exact steps a developer takes to publish their first website on RepoSphere.
           </p>
         </div>
 
@@ -7218,7 +7218,7 @@ const QuickRevisionContent = ({ onNext }) => {
     { cat: 'Git Basics', q: 'What is a commit?', a: 'A snapshot of project changes saved in history.' },
     { cat: 'Git Basics', q: 'What is staging?', a: 'Preparing files before committing them.' },
     { cat: 'Git Basics', q: 'What is a repository?', a: 'A project folder tracked by Git.' },
-    { cat: 'Git Basics', q: 'Local vs Remote?', a: 'Local is on your machine; Remote is on GitHub/cloud.' },
+    { cat: 'Git Basics', q: 'Local vs Remote?', a: 'Local is on your machine; Remote is on RepoSphere/cloud.' },
     { cat: 'Git Basics', q: 'Why use Git?', a: 'To track history, collaborate safely, and manage versions.' },
     
     { cat: 'Repositories', q: 'What is README.md?', a: 'Documentation explaining the project.' },
@@ -7239,7 +7239,7 @@ const QuickRevisionContent = ({ onNext }) => {
 
     { cat: 'CI/CD', q: 'What is CI?', a: 'Continuous Integration: frequent code merging and testing.' },
     { cat: 'CI/CD', q: 'What is CD?', a: 'Continuous Deployment/Delivery: automated shipping.' },
-    { cat: 'CI/CD', q: 'What is GitHub Actions?', a: 'GitHub workflow automation platform.' },
+    { cat: 'CI/CD', q: 'What is RepoSphere Actions?', a: 'RepoSphere workflow automation platform.' },
     { cat: 'CI/CD', q: 'What triggers workflows?', a: 'Events like push, pull_request, or release.' },
     { cat: 'CI/CD', q: 'What is a runner?', a: 'A machine executing workflow jobs.' },
 
@@ -7679,7 +7679,7 @@ const GitHubCompanion = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([
-    { role: 'bot', text: 'Hi! I am your CodeForge Assistant. Ask me anything about Git or GitHub!' }
+    { role: 'bot', text: 'Hi! I am your RepoSphere Assistant. Ask me anything about Git or GitHub!' }
   ]);
   const [copiedCmd, setCopiedCmd] = useState(null);
   
@@ -7722,7 +7722,7 @@ const GitHubCompanion = () => {
       if (lowMsg.includes('branch')) {
         response = "Branches are parallel versions of your code. Pro tip: Always use `git switch -c <name>` to start a new feature safely without breaking the main branch!";
       } else if (lowMsg.includes('repo') || lowMsg.includes('repository')) {
-        response = "A repository is your project's home on CodeForge. It stores all files, history, and configuration. Think of it as a highly advanced project folder!";
+        response = "A repository is your project's home on RepoSphere. It stores all files, history, and configuration. Think of it as a highly advanced project folder!";
       } else if (lowMsg.includes('pr') || lowMsg.includes('pull request')) {
         response = "Pull Requests (PRs) are the heart of collaboration. They allow you to propose changes and get them reviewed by teammates before merging.";
       } else if (lowMsg.includes('commit')) {

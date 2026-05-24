@@ -2,7 +2,10 @@ import exp from "express";
 import { UserModel } from "../models/UserModel.js";
 import { hash, compare } from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 import { config } from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { encryptToken } from "../utils/encrypt.js";
 import { createGiteaUser, createGiteaUserToken } from "../services/giteaAuthService.js";
@@ -12,7 +15,12 @@ import { upload } from "../utils/multer.js";
 import { uploadToCloudinary } from "../utils/cloudStorage.js";
 
 export const userApp = exp.Router();
-config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+config({ path: path.resolve(__dirname, "../.env") });
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 function signUser(user) {
   return jwt.sign(
@@ -33,6 +41,28 @@ function setAuthCookie(res, token) {
     sameSite: "lax",
     secure: false,
   });
+}
+
+function sanitizeGoogleUsername(value) {
+  return (value || "google_user")
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 28) || "google_user";
+}
+
+async function getAvailableUsername(seed) {
+  const base = sanitizeGoogleUsername(seed);
+  let candidate = base;
+  let suffix = 1;
+
+  while (await UserModel.exists({ username: candidate })) {
+    candidate = `${base}-${suffix}`;
+    suffix += 1;
+  }
+
+  return candidate;
 }
 
 /* REGISTER */
@@ -122,6 +152,82 @@ userApp.post("/login", async (req, res, next) => {
       message: "Login Successful",
       token: signedToken,
       payload: userObj
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* GOOGLE SIGN IN */
+userApp.post("/google", async (req, res, next) => {
+  try {
+    const { credential } = req.body;
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(500).json({ message: "Google sign-in is not configured" });
+    }
+
+    if (!credential) {
+      return res.status(400).json({ message: "Google credential is required" });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload?.email || !payload.email_verified) {
+      return res.status(400).json({ message: "Google email is not verified" });
+    }
+
+    let user = await UserModel.findOne({
+      $or: [{ googleId: payload.sub }, { email: payload.email }],
+    });
+
+    if (!user) {
+      const usernameSeed = payload.email.split("@")[0] || payload.name;
+      user = await UserModel.create({
+        username: await getAvailableUsername(usernameSeed),
+        email: payload.email,
+        password: await hash(`google:${payload.sub}:${Date.now()}`, 12),
+        gitname: payload.name || "",
+        displayName: payload.name || "",
+        profileImageUrl: payload.picture || "",
+        googleId: payload.sub,
+        authProvider: "google",
+      });
+    } else {
+      let shouldSave = false;
+      if (!user.googleId) {
+        user.googleId = payload.sub;
+        shouldSave = true;
+      }
+      if (user.authProvider !== "google") {
+        user.authProvider = "google";
+        shouldSave = true;
+      }
+      if (payload.picture && user.profileImageUrl !== payload.picture) {
+        user.profileImageUrl = payload.picture;
+        shouldSave = true;
+      }
+      if (!user.displayName && payload.name) {
+        user.displayName = payload.name;
+        shouldSave = true;
+      }
+      if (shouldSave) await user.save();
+    }
+
+    const signedToken = signUser(user);
+    setAuthCookie(res, signedToken);
+
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    res.status(200).json({
+      message: "Google sign-in successful",
+      token: signedToken,
+      payload: userObj,
     });
   } catch (err) {
     next(err);

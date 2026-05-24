@@ -17,7 +17,7 @@ const GithubIcon = ({ className, ...props }) => {
   return (
     <img 
       src={logoSrc} 
-      alt="Antigravity" 
+      alt="RepoSphere" 
       className={`${className} select-none object-contain`} 
       {...props} 
     />

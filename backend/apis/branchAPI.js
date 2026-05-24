@@ -75,7 +75,7 @@ branchApp.get("/:repoId/names", verifyToken, requireMinimumRole("DEVELOPER"), as
 
     if (isGiteaConfigured() && repo.giteaFullName) {
       const [ownerUsername, repoName] = repo.giteaFullName.split("/");
-      const names = await listBranchNames(ownerUsername, repoName);
+      const names = await giteaListBranchNames(ownerUsername, repoName);
       return res.status(200).json(names);
     }
 
@@ -116,7 +116,7 @@ branchApp.post("/:repoId/create", verifyToken, requireMinimumRole("DEVELOPER"), 
     }
 
     // Local Git fallback using branchService
-    const branchDoc = await dbCreateBranch(repoId, newBranchName, fromBranch);
+    const branchDoc = await dbCreateBranch(repoId, newBranchName, fromBranch, req.user.id);
     // Update repo document's branches array
     await RepositoryModel.findByIdAndUpdate(repoId, { $addToSet: { branches: newBranchName } });
     getIO().to(repoId).emit("branch_created", {
