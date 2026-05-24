@@ -1,7 +1,7 @@
 /**
  * giteaAuthService.js
  * Manages user identity mirroring between MongoDB and Gitea.
- * Every Antigravity user has a corresponding Gitea account so that
+ * Every RepoSphere user has a corresponding Gitea account so that
  * Git operations (clone, push, PR) are attributed to the correct user.
  */
 
@@ -86,14 +86,14 @@ export const createGiteaUserToken = async (username, plaintextPassword) => {
   try {
     // First delete any existing token with the same name to avoid conflicts
     try {
-      await adminClient().delete(`/users/${username}/tokens/antigravity-platform`);
+      await adminClient().delete(`/users/${username}/tokens/reposphere-platform`);
     } catch (_) { /* ignore if not found */ }
 
     // Create token via basic auth (user credentials required)
     const res = await axios.post(
       `${GITEA_BASE}/api/v1/users/${username}/tokens`,
       {
-        name: "antigravity-platform",
+        name: "reposphere-platform",
         // Gitea 1.22+ requires explicit scopes — without these the API returns
         // "access token must have a scope" error.
         scopes: [
@@ -123,7 +123,7 @@ export const createGiteaUserToken = async (username, plaintextPassword) => {
 
 /**
  * Deletes a Gitea user account.
- * Called when a MongoDB user deletes their Antigravity account.
+ * Called when a MongoDB user deletes their RepoSphere account.
  * @param {string} username
  */
 export const deleteGiteaUser = async (username) => {

@@ -32,7 +32,7 @@ export const syncForkWithUpstream = async ({
   giteaToken,
   defaultBranch = "main"
 }) => {
-  const tempDir = path.join(os.tmpdir(), `antigravity-sync-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
+  const tempDir = path.join(os.tmpdir(), `reposphere-sync-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`);
   fs.mkdirSync(tempDir, { recursive: true });
 
   try {
@@ -49,7 +49,7 @@ export const syncForkWithUpstream = async ({
 
     // Set user.name and user.email for git merge
     await execPromise(`git config user.name "${giteaUsername}"`, { cwd: tempDir });
-    await execPromise(`git config user.email "${giteaUsername}@antigravity.local"`, { cwd: tempDir });
+    await execPromise(`git config user.email "${giteaUsername}@reposphere.local"`, { cwd: tempDir });
 
     console.log(`[Git Sync] Adding upstream remote: ${upstreamCloneUrl.replace(/:[^@/]+@/, ":***@")}`);
     await execPromise(`git remote add upstream ${authenticatedUpstreamUrl}`, { cwd: tempDir });

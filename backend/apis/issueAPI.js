@@ -2,6 +2,7 @@ import exp from "express";
 import { IssueModel } from "../models/IssueModel.js";
 import { IssueCommentModel } from "../models/IssueCommentModel.js";
 import { RepositoryModel } from "../models/RepositoryModel.js";
+import { ProjectModel } from "../models/ProjectModel.js";
 import { ActivityLogModel } from "../models/ActivityLogModel.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 import { requireMinimumRole, getUserRepoRole } from "../middleware/repoAuth.js";
@@ -38,7 +39,7 @@ issueApp.get("/user/all", verifyToken, async (req, res) => {
 /* ---------------- CREATE ISSUE ---------------- */
 issueApp.post("/:repoId", verifyToken, requireMinimumRole("DEVELOPER"), async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, assignedTo = [], labels = [], projectId, milestone = "" } = req.body;
     const { repoId } = req.params;
 
     const repo = await RepositoryModel.findById(repoId);
@@ -51,7 +52,28 @@ issueApp.post("/:repoId", verifyToken, requireMinimumRole("DEVELOPER"), async (r
       description,
       repoId,
       createdBy: req.user.id,
+      assignedTo: Array.isArray(assignedTo) ? assignedTo : [],
+      labels: Array.isArray(labels) ? labels : [],
+      projectId: projectId || undefined,
+      milestone,
     });
+
+    if (projectId) {
+      const project = await ProjectModel.findOne({ _id: projectId, repoId });
+      if (project) {
+        if (!project.columns?.length) {
+          project.columns = [{ id: "todo", name: "To do", cards: [] }];
+        }
+        project.columns[0].cards.push({
+          id: issue._id.toString(),
+          title,
+          content: description || "",
+          type: "issue",
+          referenceId: issue._id,
+        });
+        await project.save();
+      }
+    }
 
     // Log activity
     await new ActivityLogModel({

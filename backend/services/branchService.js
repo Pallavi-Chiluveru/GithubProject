@@ -35,17 +35,32 @@ const getRepoPath = async (repoId) => {
 /**
  * Create a new branch from a source branch.
  */
-export const createBranch = async (repoId, newName, sourceBranch = 'main') => {
+export const createBranch = async (repoId, newName, sourceBranch = 'main', creatorId) => {
+  if (!creatorId) throw new Error('Branch creator is required');
+  if (!/^[A-Za-z0-9._/-]+$/.test(newName) || newName.includes('..') || newName.endsWith('/')) {
+    throw new Error('Invalid branch name');
+  }
+
   const repoPath = await getRepoPath(repoId);
+  const existingDoc = await BranchModel.findOne({ repoId, name: newName });
+  if (existingDoc) throw new Error('Branch already exists');
+
   // Verify source branch exists
   await runGitCommand(repoPath, ['rev-parse', '--verify', sourceBranch]);
-  // Create branch
-  await runGitCommand(repoPath, ['branch', newName, sourceBranch]);
+
+  // Create branch unless a previous partial attempt already created it in Git.
+  const branchAlreadyExistsInGit = await runGitCommand(repoPath, ['rev-parse', '--verify', newName])
+    .then(() => true)
+    .catch(() => false);
+  if (!branchAlreadyExistsInGit) {
+    await runGitCommand(repoPath, ['branch', newName, sourceBranch]);
+  }
+
   const latestSha = await runGitCommand(repoPath, ['rev-parse', newName]);
   const branch = await BranchModel.create({
     repoId,
     name: newName,
-    creator: null, // populate from auth context in controller
+    creator: creatorId,
     latestCommitSha: latestSha,
     isDefault: false,
     isProtected: false,

@@ -318,7 +318,7 @@ const RepositoryGuideWorkspace = () => {
           <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/20">
             <Info className="w-7 h-7" />
           </div>
-          <h3 className="text-3xl font-black text-white">What is GitHub?</h3>
+          <h3 className="text-3xl font-black text-white">What is RepoSphere?</h3>
           <p className="text-lg text-slate-400 leading-relaxed italic">
             "Think of GitHub like <span className="text-blue-400 font-bold underline decoration-blue-500/30">Google Docs for Code</span>."
           </p>
@@ -529,7 +529,7 @@ const RepositoryGuideWorkspace = () => {
         <div className="lg:col-span-1 space-y-6">
           <h3 className="text-3xl font-black text-white">How Developers Work</h3>
           <p className="text-slate-400 leading-relaxed">
-            Collaboration on GitHub follows a very specific "Workflow".
+            Collaboration on RepoSphere follows a very specific "Workflow".
             It's like an assembly line where everyone works together without stepping on each other's toes.
           </p>
           <div className="space-y-4 pt-4">

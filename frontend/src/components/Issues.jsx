@@ -23,6 +23,7 @@ export default function Issues() {
   const [repo, setRepo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isLabelOpen, setIsLabelOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("open");
 
   const labels = [
     { name: 'bug', color: '#d73a4a', desc: "Something isn't working" },
@@ -71,6 +72,8 @@ export default function Issues() {
     );
   }
 
+  const visibleIssues = issues.filter(issue => statusFilter === "all" || issue.status === statusFilter);
+
   return (
     <div className="min-h-screen bg-[#010409] text-[#c9d1d9] pb-20">
       <div className="mx-auto max-w-6xl px-4 py-8">
@@ -110,10 +113,10 @@ export default function Issues() {
            {/* List Header */}
            <div className="flex items-center justify-between bg-[#161b22] border-b border-[#30363d] px-6 py-4">
               <div className="flex items-center gap-4">
-                 <button className="flex items-center gap-1.5 text-sm font-bold text-[#f0f6fc]">
+                 <button onClick={() => setStatusFilter("open")} className={`flex items-center gap-1.5 text-sm font-bold ${statusFilter === "open" ? "text-[#f0f6fc]" : "text-[#8b949e] hover:text-[#f0f6fc]"}`}>
                     <CircleDot className="h-4 w-4" /> {issues.filter(i => i.status === "open").length} Open
                  </button>
-                 <button className="flex items-center gap-1.5 text-sm font-medium text-[#8b949e] hover:text-[#f0f6fc]">
+                 <button onClick={() => setStatusFilter("closed")} className={`flex items-center gap-1.5 text-sm font-medium ${statusFilter === "closed" ? "text-[#f0f6fc]" : "text-[#8b949e] hover:text-[#f0f6fc]"}`}>
                     <CheckCircle2 className="h-4 w-4" /> {issues.filter(i => i.status === "closed").length} Closed
                  </button>
               </div>
@@ -124,8 +127,8 @@ export default function Issues() {
 
            {/* List Items */}
            <div className="divide-y divide-[#30363d]">
-              {issues.length > 0 ? (
-                issues.map((issue) => (
+              {visibleIssues.length > 0 ? (
+                visibleIssues.map((issue) => (
                   <div key={issue._id} className="flex items-start gap-3 px-6 py-4 hover:bg-[#161b22] transition-colors group">
                      <CircleDot className={`h-4 w-4 mt-1 ${issue.status === "open" ? "text-[#3fb950]" : "text-[#8b949e]"}`} />
                      <div className="flex-1">

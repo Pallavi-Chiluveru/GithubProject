@@ -74,6 +74,16 @@ const userSchema = new Schema({
         theme: { type: String, default: "light", enum: ["dark", "light"] },
         fontSize: { type: String, default: "medium", enum: ["small", "medium", "large"] }
     },
+    googleId: {
+        type: String,
+        default: "",
+        index: true
+    },
+    authProvider: {
+        type: String,
+        default: "local",
+        enum: ["local", "google"]
+    },
     // ─── Gitea Identity ────────────────────────────────────────────────────────
     // Every user has a mirrored Gitea account for real Git operations.
     giteaUserId:   { type: Number, default: null },          // Gitea numeric user ID

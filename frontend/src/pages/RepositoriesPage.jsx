@@ -484,7 +484,7 @@ const RepositoriesPage = () => {
             <div className="my-4 border-t border-[var(--border-color)] opacity-50" />
             <SidebarItem 
               icon={Sparkles} 
-              label="Learn GitHub" 
+              label="Learn RepoSphere" 
               active={false} 
               onClick={() => navigate('/companion')} 
               isCollapsed={isSidebarCollapsed}

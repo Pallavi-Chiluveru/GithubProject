@@ -1,7 +1,7 @@
 /**
  * activityFeedService.js
  * Processes raw Gitea webhook payloads into structured MongoDB activity logs.
- * This is the bridge between Git events and the Antigravity analytics/feed system.
+ * This is the bridge between Git events and the RepoSphere analytics/feed system.
  */
 
 import { ActivityLogModel } from "../models/ActivityLogModel.js";

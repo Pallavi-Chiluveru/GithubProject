@@ -187,7 +187,7 @@ export default function RepoSettings() {
       }
     };
     fetchRepo();
-    return () => { document.title = "CodeForge"; };
+    return () => { document.title = "RepoSphere"; };
   }, [id, navigate]);
 
   // Dynamic Tab Fetching

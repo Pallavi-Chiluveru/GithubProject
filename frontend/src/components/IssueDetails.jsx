@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
    CircleDot,
    MessageSquare,
@@ -63,10 +65,96 @@ export default function IssueDetails() {
     const [submitError, setSubmitError] = useState("");
     const [toggling,   setToggling]   = useState(false);
     const [statusMessage, setStatusMessage] = useState("");
+    const [commentHistory, setCommentHistory] = useState([]);
     const commentEndRef = useRef(null);
+    const commentInputRef = useRef(null);
 
    // ── current logged-in user ─────────────────────────────────────────────
    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+   const updateComment = (nextValue, nextSelectionStart = null, nextSelectionEnd = null) => {
+      setCommentHistory(prev => [...prev.slice(-19), comment]);
+      setComment(nextValue);
+      setActiveTab("write");
+
+      window.setTimeout(() => {
+         const textarea = commentInputRef.current;
+         if (!textarea) return;
+         textarea.focus();
+         if (nextSelectionStart !== null && nextSelectionEnd !== null) {
+            textarea.setSelectionRange(nextSelectionStart, nextSelectionEnd);
+         }
+      }, 0);
+   };
+
+   const applyCommentMarkdown = (type) => {
+      const textarea = commentInputRef.current;
+      const start = textarea?.selectionStart ?? comment.length;
+      const end = textarea?.selectionEnd ?? comment.length;
+      const selected = comment.slice(start, end);
+      const before = comment.slice(0, start);
+      const after = comment.slice(end);
+      const fallback = {
+         heading: "Heading",
+         bold: "bold text",
+         italic: "italic text",
+         list: "List item",
+         code: "code",
+         link: "link text",
+         mention: "username",
+      };
+
+      let insert = selected || fallback[type] || "";
+      let selectStart = start;
+      let selectEnd = start + insert.length;
+
+      if (type === "heading") {
+         insert = (selected || fallback.heading).split("\n").map(line => line.startsWith("### ") ? line : `### ${line}`).join("\n");
+         selectStart = start + 4;
+         selectEnd = start + insert.length;
+      } else if (type === "bold") {
+         insert = `**${selected || fallback.bold}**`;
+         selectStart = start + 2;
+         selectEnd = start + insert.length - 2;
+      } else if (type === "italic") {
+         insert = `*${selected || fallback.italic}*`;
+         selectStart = start + 1;
+         selectEnd = start + insert.length - 1;
+      } else if (type === "list") {
+         insert = (selected || fallback.list).split("\n").map(line => line.startsWith("- ") ? line : `- ${line}`).join("\n");
+         selectStart = start + 2;
+         selectEnd = start + insert.length;
+      } else if (type === "code") {
+         insert = selected.includes("\n") ? `\`\`\`\n${selected || fallback.code}\n\`\`\`` : `\`${selected || fallback.code}\``;
+         selectStart = start + (selected.includes("\n") ? 4 : 1);
+         selectEnd = start + insert.length - (selected.includes("\n") ? 4 : 1);
+      } else if (type === "link") {
+         const url = window.prompt("Enter URL", "https://");
+         if (url === null) return;
+         insert = `[${selected || fallback.link}](${url})`;
+         selectStart = start + 1;
+         selectEnd = start + 1 + (selected || fallback.link).length;
+      } else if (type === "mention") {
+         const username = window.prompt("Mention username", selected || "");
+         if (username === null) return;
+         insert = `@${username.replace(/^@/, "") || fallback.mention}`;
+         selectStart = start + 1;
+         selectEnd = start + insert.length;
+      }
+
+      updateComment(`${before}${insert}${after}`, selectStart, selectEnd);
+   };
+
+   const undoComment = () => {
+      setCommentHistory(prev => {
+         if (prev.length === 0) return prev;
+         const next = prev[prev.length - 1];
+         setComment(next);
+         setActiveTab("write");
+         window.setTimeout(() => commentInputRef.current?.focus(), 0);
+         return prev.slice(0, -1);
+      });
+   };
 
    // ── fetch issue + repo ─────────────────────────────────────────────────
    useEffect(() => {
@@ -456,16 +544,16 @@ export default function IssueDetails() {
                            </div>
                            {/* Markdown toolbar */}
                            <div className="flex items-center gap-2 pb-2">
-                              <Heading className="h-4 w-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors" />
-                              <Bold    className="h-4 w-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors" />
-                              <Italic  className="h-4 w-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors" />
+                              <button type="button" title="Heading" onClick={() => applyCommentMarkdown("heading")} className="rounded-md p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"><Heading className="h-4 w-4" /></button>
+                              <button type="button" title="Bold" onClick={() => applyCommentMarkdown("bold")} className="rounded-md p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"><Bold className="h-4 w-4" /></button>
+                              <button type="button" title="Italic" onClick={() => applyCommentMarkdown("italic")} className="rounded-md p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"><Italic className="h-4 w-4" /></button>
                               <div className="h-4 w-[1px] bg-[var(--border-color)] mx-1" />
-                              <Code    className="h-4 w-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors" />
-                              <LinkIcon className="h-4 w-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors" />
+                              <button type="button" title="Code" onClick={() => applyCommentMarkdown("code")} className="rounded-md p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"><Code className="h-4 w-4" /></button>
+                              <button type="button" title="Link" onClick={() => applyCommentMarkdown("link")} className="rounded-md p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"><LinkIcon className="h-4 w-4" /></button>
                               <div className="h-4 w-[1px] bg-[var(--border-color)] mx-1" />
-                              <List   className="h-4 w-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors" />
-                              <AtSign className="h-4 w-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors" />
-                              <Reply  className="h-4 w-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer transition-colors" />
+                              <button type="button" title="Bulleted list" onClick={() => applyCommentMarkdown("list")} className="rounded-md p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"><List className="h-4 w-4" /></button>
+                              <button type="button" title="Mention" onClick={() => applyCommentMarkdown("mention")} className="rounded-md p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"><AtSign className="h-4 w-4" /></button>
+                              <button type="button" title="Undo" onClick={undoComment} disabled={commentHistory.length === 0} className="rounded-md p-1.5 text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-40"><Reply className="h-4 w-4" /></button>
                            </div>
                         </div>
 
@@ -473,6 +561,7 @@ export default function IssueDetails() {
                         <div className="p-4 min-h-[120px]">
                            {activeTab === "write" ? (
                               <textarea
+                                 ref={commentInputRef}
                                  id="comment-textarea"
                                  rows={6}
                                  placeholder="Leave a comment…"
@@ -489,8 +578,10 @@ export default function IssueDetails() {
                                  disabled={submitting}
                               />
                            ) : (
-                              <div className="text-sm text-[var(--text-primary)] min-h-[120px] whitespace-pre-wrap">
-                                 {comment || (
+                              <div className="text-sm text-[var(--text-primary)] min-h-[120px]">
+                                 {comment ? (
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{comment}</ReactMarkdown>
+                                 ) : (
                                     <span className="italic text-[var(--text-secondary)]">Nothing to preview.</span>
                                  )}
                               </div>

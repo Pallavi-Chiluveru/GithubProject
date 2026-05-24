@@ -74,7 +74,7 @@ export default function AgentsTab({ repoId, repo }) {
             <img src={logoSrc} alt="Logo" className="w-full h-full object-contain select-none" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-[var(--text-primary)]">CodeForge AI Agent</h3>
+            <h3 className="text-sm font-bold text-[var(--text-primary)]">RepoSphere AI Agent</h3>
             <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">Your repository-aware assistant. Code generation, design, and architecture audits.</p>
           </div>
         </div>

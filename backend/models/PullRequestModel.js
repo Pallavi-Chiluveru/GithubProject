@@ -71,6 +71,12 @@ const pullRequestSchema = new Schema(
         ref: "user",
       },
     ],
+    assignees: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "user",
+      },
+    ],
 
     // ─── Status & Workflow ──────────────────────────────────────────────────────
     status: {

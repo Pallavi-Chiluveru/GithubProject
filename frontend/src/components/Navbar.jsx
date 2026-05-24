@@ -31,6 +31,7 @@ export default function Navbar() {
 
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user") || "{}"));
+  const currentUserId = user._id || user.id;
   const { setAppearance } = useTheme();
 
   // Keep token/user in sync if localStorage changes (e.g. login in another tab)
@@ -50,7 +51,7 @@ export default function Navbar() {
 
   // Fetch initial unread count and set up real-time listener
   useEffect(() => {
-    if (!token || !user._id) return;
+    if (!token || !currentUserId) return;
 
     // Get initial count
     API.get("/notification-api/unread-count")
@@ -59,14 +60,14 @@ export default function Navbar() {
 
     // Join user's socket room and listen for new notifications
     const socket = getSocket();
-    socket.emit("join", user._id);
+    socket.emit("join", currentUserId);
     const handler = () => setUnreadCount(prev => prev + 1);
     socket.on("new_notification", handler);
 
     return () => {
       socket.off("new_notification", handler);
     };
-  }, [token, user._id]);
+  }, [token, currentUserId]);
 
   // Reset unread count when user visits notifications page
   useEffect(() => {
@@ -121,7 +122,7 @@ export default function Navbar() {
     "/settings/organizations": "Organizations",
   }[location.pathname] || (
     location.pathname.startsWith("/org/") ? "Organization" :
-    location.pathname.startsWith("/repo/") ? "Repository" : "CodeForge"
+    location.pathname.startsWith("/repo/") ? "Repository" : "RepoSphere"
   );
 
   return (

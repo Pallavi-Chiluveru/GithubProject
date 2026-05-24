@@ -116,8 +116,9 @@ export default function OrgDashboard() {
 
   // Debounced search removed as it is now handled in OrgMembersView
 
-  const myMembership = members.find(m => m.user?._id === user._id || m.user?._id?.toString() === user._id);
-  const isOwner = org && (org.owner?._id === user._id || org.owner?._id?.toString() === user._id);
+  const currentUserId = user._id || user.id;
+  const myMembership = members.find(m => m.user?._id === currentUserId || m.user?._id?.toString() === currentUserId);
+  const isOwner = org && (org.owner?._id === currentUserId || org.owner?._id?.toString() === currentUserId);
   const myRole = isOwner ? "OWNER" : myMembership?.role;
   const canManage = ["OWNER", "ADMIN"].includes(myRole);       // invite, remove, role changes
   const canCreateRepo = ["OWNER", "ADMIN", "MAINTAINER", "COLLABORATOR"].includes(myRole); // create repos
@@ -205,7 +206,7 @@ export default function OrgDashboard() {
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       {/* Header */}
-      <div className="bg-[var(--bg-secondary)] border-b border-[var(--border-color)] pt-20">
+      <div className="bg-[var(--bg-primary)] border-b border-[var(--border-color)] pt-20">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <button onClick={() => navigate("/dashboard")} className="flex items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] mb-4">
             <ArrowLeft size={14} /> Back to Dashboard
@@ -325,7 +326,9 @@ export default function OrgDashboard() {
             onRemove={handleRemoveMember}
             onChangeRole={handleChangeRole}
             onInvite={handleInvite}
-            currentUserId={user._id}
+            currentUserId={currentUserId}
+            canRemoveMembers={isOwner}
+            canInviteMembers={canManage}
             isLoading={loading}
             forceOpenInvite={forceInviteOpen}
             onCloseInvite={() => setForceInviteOpen(false)}

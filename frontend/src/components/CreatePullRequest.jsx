@@ -16,7 +16,11 @@ import {
   ShieldCheck,
   Send,
   GitCommit,
-  Settings
+  Settings,
+  Plus,
+  Tag,
+  UserPlus,
+  X
 } from "lucide-react";
 import DiffViewer from "./DiffViewer";
 
@@ -38,9 +42,22 @@ export default function CreatePullRequest() {
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [isDraft, setIsDraft] = useState(false);
+  const [newBranchName, setNewBranchName] = useState("");
+  const [branchSide, setBranchSide] = useState("head");
+  const [creatingBranch, setCreatingBranch] = useState(false);
+  const [branchError, setBranchError] = useState("");
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [repoLabels, setRepoLabels] = useState([]);
+  const [selectedReviewers, setSelectedReviewers] = useState([]);
+  const [selectedAssignees, setSelectedAssignees] = useState([]);
+  const [selectedLabels, setSelectedLabels] = useState(["enhancement", "ready"]);
+  const [openConfig, setOpenConfig] = useState(null);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const currentUserId = user._id || user.id;
 
   const getOwnerName = (repoData) => repoData?.owner?.username || "Unknown";
   const getRepoLabel = (repoData) => repoData ? `${getOwnerName(repoData)}/${repoData.name}` : "";
+  const normalizeUser = (entry) => entry?.userId || entry?.user || entry;
 
   const fetchBranchNames = async (repoData) => {
     if (!repoData?._id) return ["main"];
@@ -94,6 +111,26 @@ export default function CreatePullRequest() {
         setHeadBranches(sourceBranches);
         setBaseBranch(upstreamCandidate?.defaultBranch || upstreamBranches[0] || "main");
         setHeadBranch(sourceRepo?.defaultBranch || sourceBranches[0] || "main");
+
+        try {
+          const collabRes = await API.get(`/collab-api/repo/${repoData._id}`);
+          const collaborators = Array.isArray(collabRes.data) ? collabRes.data.map(normalizeUser).filter(u => u?._id) : [];
+          const ownerUser = normalizeUser(repoData.owner);
+          const allUsers = ownerUser?._id ? [ownerUser, ...collaborators] : collaborators;
+          setAvailableUsers(Array.from(new Map(allUsers.map(u => [u._id, u])).values()));
+        } catch (collabErr) {
+          console.warn("[PR] Could not fetch collaborators:", collabErr.message);
+          setAvailableUsers([]);
+        }
+
+        try {
+          const labelsRes = await API.get(`/label-api/repo/${repoData._id}`);
+          const labels = Array.isArray(labelsRes.data) ? labelsRes.data.map(label => label.name || label.title).filter(Boolean) : [];
+          setRepoLabels(labels.length ? labels : ["enhancement", "bug", "documentation", "ready"]);
+        } catch (labelErr) {
+          console.warn("[PR] Could not fetch labels:", labelErr.message);
+          setRepoLabels(["enhancement", "bug", "documentation", "ready"]);
+        }
       } catch (err) {
         console.error("Failed to fetch repo:", err);
       } finally {
@@ -121,8 +158,52 @@ export default function CreatePullRequest() {
     setHeadBranch(selectedRepo.defaultBranch || branches[0] || "main");
   };
 
+  const handleCreateBranch = async (e) => {
+    e.preventDefault();
+    const targetRepo = branchSide === "base" ? baseRepo : headRepo;
+    const sourceBranch = branchSide === "base" ? baseBranch : headBranch;
+    const trimmedName = newBranchName.trim();
+
+    if (!targetRepo?._id || !trimmedName || !sourceBranch) return;
+
+    try {
+      setCreatingBranch(true);
+      setBranchError("");
+      await API.post(`/branch-api/${targetRepo._id}/create`, {
+        newBranchName: trimmedName,
+        fromBranch: sourceBranch,
+      });
+
+      if (baseRepo?._id === targetRepo._id) {
+        setBaseBranches(prev => prev.includes(trimmedName) ? prev : [...prev, trimmedName]);
+      }
+      if (headRepo?._id === targetRepo._id) {
+        setHeadBranches(prev => prev.includes(trimmedName) ? prev : [...prev, trimmedName]);
+      }
+
+      if (branchSide === "base") {
+        setBaseBranch(trimmedName);
+      } else {
+        setHeadBranch(trimmedName);
+      }
+      setNewBranchName("");
+    } catch (err) {
+      setBranchError(err.response?.data?.message || "Failed to create branch");
+    } finally {
+      setCreatingBranch(false);
+    }
+  };
+
   const isCrossRepo = !!(baseRepo?._id && headRepo?._id && baseRepo._id !== headRepo._id);
   const hasValidComparison = !!(baseRepo?._id && headRepo?._id && baseBranch && headBranch && (isCrossRepo || baseBranch !== headBranch));
+  const toggleId = (setter, id) => {
+    setter(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
+  };
+  const toggleLabel = (label) => {
+    setSelectedLabels(prev => prev.includes(label) ? prev.filter(item => item !== label) : [...prev, label]);
+  };
+  const selectedReviewerUsers = availableUsers.filter(u => selectedReviewers.includes(u._id));
+  const selectedAssigneeUsers = availableUsers.filter(u => selectedAssignees.includes(u._id));
 
   useEffect(() => {
     if (hasValidComparison) {
@@ -164,6 +245,9 @@ export default function CreatePullRequest() {
         targetBranch: baseBranch,
         isDraft,
         headRepoId: headRepo._id,
+        reviewerIds: selectedReviewers,
+        assigneeIds: selectedAssignees,
+        labels: selectedLabels,
       });
       navigate(`/repo/${baseRepo._id}/pull/${res.data.pr._id}`);
     } catch (err) {
@@ -234,9 +318,15 @@ export default function CreatePullRequest() {
             </div>
           </div>
 
-          <div className="h-10 w-10 rounded-full bg-[#30363d]/30 flex items-center justify-center text-[#8b949e] animate-in fade-in zoom-in duration-500">
+          <button
+            type="button"
+            onClick={handleCompare}
+            disabled={!hasValidComparison || comparing}
+            title="Compare selected branches"
+            className="h-10 w-10 rounded-full bg-[#30363d]/30 flex items-center justify-center text-[#8b949e] hover:bg-[#2f81f7]/20 hover:text-[#58a6ff] disabled:opacity-50 transition-all animate-in fade-in zoom-in duration-500"
+          >
              <ArrowRight size={20} />
-          </div>
+          </button>
 
           <div className="flex items-center gap-3 bg-[#161b22] border border-[#30363d] px-4 py-2.5 rounded-xl transition-all hover:border-[#2f81f7]/50">
             <span className="text-[10px] text-[#8b949e] font-black uppercase tracking-widest">compare:</span>
@@ -284,6 +374,50 @@ export default function CreatePullRequest() {
             </div>
           )}
         </div>
+
+        <form
+          onSubmit={handleCreateBranch}
+          className="bg-[#0d1117] border border-[#30363d] rounded-2xl p-5 mb-10 flex flex-wrap items-end gap-4 shadow-xl"
+        >
+          <div className="flex-1 min-w-[240px]">
+            <label className="text-[10px] text-[#8b949e] font-black uppercase tracking-widest block mb-2">Create branch</label>
+            <div className="flex items-center gap-2 bg-[#010409] border border-[#30363d] rounded-xl px-3 py-2.5 focus-within:border-[#2f81f7]">
+              <GitBranch size={16} className="text-[#2f81f7]" />
+              <input
+                value={newBranchName}
+                onChange={(e) => setNewBranchName(e.target.value)}
+                placeholder="feature/new-work"
+                className="flex-1 min-w-0 bg-transparent text-sm text-[#f0f6fc] outline-none placeholder:text-[#6e7681]"
+              />
+            </div>
+            {branchError && <p className="mt-2 text-xs font-semibold text-[#f85149]">{branchError}</p>}
+          </div>
+
+          <div className="min-w-[220px]">
+            <label className="text-[10px] text-[#8b949e] font-black uppercase tracking-widest block mb-2">From</label>
+            <select
+              value={branchSide}
+              onChange={(e) => setBranchSide(e.target.value)}
+              className="w-full bg-[#010409] border border-[#30363d] rounded-xl px-3 py-2.5 text-sm font-bold text-[#f0f6fc] outline-none focus:border-[#2f81f7]"
+            >
+              <option value="head" className="bg-[#0d1117]">
+                {getRepoLabel(headRepo)}:{headBranch || "main"}
+              </option>
+              <option value="base" className="bg-[#0d1117]">
+                {getRepoLabel(baseRepo)}:{baseBranch || "main"}
+              </option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            disabled={creatingBranch || !newBranchName.trim()}
+            className="h-[42px] px-5 rounded-xl bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] text-[#f0f6fc] text-sm font-black transition-all disabled:opacity-50 flex items-center gap-2"
+          >
+            {creatingBranch ? <Activity className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            Create branch
+          </button>
+        </form>
 
         {!hasValidComparison ? (
           <div className="bg-[#0d1117] border border-[#30363d] border-dashed rounded-3xl p-24 text-center animate-in fade-in duration-700">
@@ -408,31 +542,75 @@ export default function CreatePullRequest() {
                      </h4>
                      
                      <div className="space-y-6">
-                        <div className="group">
+                        <div className="group relative">
                            <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-bold text-[#c9d1d9] group-hover:text-[#2f81f7] transition-all cursor-default">Reviewers</span>
-                              <Settings size={14} className="text-[#8b949e] cursor-pointer hover:text-[#f0f6fc]" />
+                              <button type="button" onClick={() => setOpenConfig(openConfig === "reviewers" ? null : "reviewers")} className="p-1 rounded hover:bg-[#21262d] text-[#8b949e] hover:text-[#f0f6fc]">
+                                <Settings size={14} />
+                              </button>
                            </div>
-                           <p className="text-[10px] text-[#8b949e] italic leading-relaxed">No reviewers suggested yet. You can assign them after creating the PR.</p>
+                           <div className="flex flex-wrap gap-1.5">
+                             {selectedReviewerUsers.length ? selectedReviewerUsers.map(u => (
+                               <span key={u._id} className="px-2 py-0.5 rounded-md bg-[#2f81f7]/10 text-[#58a6ff] text-[10px] font-bold border border-[#2f81f7]/20">{u.username}</span>
+                             )) : <p className="text-[10px] text-[#8b949e] italic leading-relaxed">No reviewers selected.</p>}
+                           </div>
+                           {openConfig === "reviewers" && (
+                             <div className="mt-3 max-h-44 overflow-y-auto rounded-xl border border-[#30363d] bg-[#010409] p-2 space-y-1">
+                               {availableUsers.length ? availableUsers.map(u => (
+                                 <button key={u._id} type="button" onClick={() => toggleId(setSelectedReviewers, u._id)} className={`w-full flex items-center justify-between rounded-lg px-3 py-2 text-xs hover:bg-[#161b22] ${selectedReviewers.includes(u._id) ? "text-[#58a6ff]" : "text-[#c9d1d9]"}`}>
+                                   <span className="flex items-center gap-2"><UserPlus size={13} /> {u.username}</span>
+                                   {selectedReviewers.includes(u._id) && <X size={13} />}
+                                 </button>
+                               )) : <p className="px-2 py-3 text-[10px] text-[#8b949e]">No collaborators found.</p>}
+                             </div>
+                           )}
                         </div>
 
-                        <div className="group">
+                        <div className="group relative">
                            <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-bold text-[#c9d1d9] group-hover:text-[#2f81f7] transition-all cursor-default">Assignees</span>
-                              <Settings size={14} className="text-[#8b949e] cursor-pointer hover:text-[#f0f6fc]" />
+                              <button type="button" onClick={() => setOpenConfig(openConfig === "assignees" ? null : "assignees")} className="p-1 rounded hover:bg-[#21262d] text-[#8b949e] hover:text-[#f0f6fc]">
+                                <Settings size={14} />
+                              </button>
                            </div>
-                           <p className="text-[10px] text-[#8b949e] italic leading-relaxed">Assign yourself or others to this task.</p>
+                           <div className="flex flex-wrap gap-1.5">
+                             {selectedAssigneeUsers.length ? selectedAssigneeUsers.map(u => (
+                               <span key={u._id} className="px-2 py-0.5 rounded-md bg-[#3fb950]/10 text-[#3fb950] text-[10px] font-bold border border-[#3fb950]/20">{u.username}</span>
+                             )) : <p className="text-[10px] text-[#8b949e] italic leading-relaxed">No assignees selected.</p>}
+                           </div>
+                           {openConfig === "assignees" && (
+                             <div className="mt-3 max-h-44 overflow-y-auto rounded-xl border border-[#30363d] bg-[#010409] p-2 space-y-1">
+                               {availableUsers.length ? availableUsers.map(u => (
+                                 <button key={u._id} type="button" onClick={() => toggleId(setSelectedAssignees, u._id)} className={`w-full flex items-center justify-between rounded-lg px-3 py-2 text-xs hover:bg-[#161b22] ${selectedAssignees.includes(u._id) ? "text-[#3fb950]" : "text-[#c9d1d9]"}`}>
+                                   <span className="flex items-center gap-2"><UserPlus size={13} /> {u.username}{u._id === currentUserId ? " (you)" : ""}</span>
+                                   {selectedAssignees.includes(u._id) && <X size={13} />}
+                                 </button>
+                               )) : <p className="px-2 py-3 text-[10px] text-[#8b949e]">No collaborators found.</p>}
+                             </div>
+                           )}
                         </div>
 
-                        <div className="group">
+                        <div className="group relative">
                            <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-bold text-[#c9d1d9] group-hover:text-[#2f81f7] transition-all cursor-default">Labels</span>
-                              <Settings size={14} className="text-[#8b949e] cursor-pointer hover:text-[#f0f6fc]" />
+                              <button type="button" onClick={() => setOpenConfig(openConfig === "labels" ? null : "labels")} className="p-1 rounded hover:bg-[#21262d] text-[#8b949e] hover:text-[#f0f6fc]">
+                                <Settings size={14} />
+                              </button>
                            </div>
                            <div className="flex flex-wrap gap-2">
-                              <span className="px-2 py-0.5 rounded-md bg-[#2f81f7]/10 text-[#2f81f7] text-[9px] font-black uppercase border border-[#2f81f7]/20">enhancement</span>
-                              <span className="px-2 py-0.5 rounded-md bg-[#3fb950]/10 text-[#3fb950] text-[9px] font-black uppercase border border-[#3fb950]/20">ready</span>
+                              {selectedLabels.length ? selectedLabels.map(label => (
+                                <span key={label} className="px-2 py-0.5 rounded-md bg-[#2f81f7]/10 text-[#58a6ff] text-[9px] font-black uppercase border border-[#2f81f7]/20">{label}</span>
+                              )) : <p className="text-[10px] text-[#8b949e] italic leading-relaxed">No labels selected.</p>}
                            </div>
+                           {openConfig === "labels" && (
+                             <div className="mt-3 rounded-xl border border-[#30363d] bg-[#010409] p-2 flex flex-wrap gap-2">
+                               {repoLabels.map(label => (
+                                 <button key={label} type="button" onClick={() => toggleLabel(label)} className={`px-2 py-1 rounded-md text-[10px] font-black uppercase border transition-all flex items-center gap-1 ${selectedLabels.includes(label) ? "bg-[#2f81f7]/10 text-[#58a6ff] border-[#2f81f7]/30" : "bg-[#161b22] text-[#8b949e] border-[#30363d]"}`}>
+                                   <Tag size={11} /> {label}
+                                 </button>
+                               ))}
+                             </div>
+                           )}
                         </div>
                      </div>
                   </div>

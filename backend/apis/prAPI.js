@@ -304,7 +304,7 @@ prApp.get("/compare/:repoId", verifyToken, checkRepoPermission("READ"), async (r
 prApp.post("/:repoId/create", verifyToken, async (req, res) => {
   try {
     const { repoId } = req.params; // This is the BASE (parent) repo
-    const { title, description, sourceBranch, targetBranch, isDraft, headRepoId } = req.body;
+    const { title, description, sourceBranch, targetBranch, isDraft, headRepoId, reviewerIds = [], assigneeIds = [], labels = [] } = req.body;
 
     if (!title || !sourceBranch || !targetBranch) {
       return res.status(400).json({ message: "title, sourceBranch, and targetBranch are required" });
@@ -378,6 +378,9 @@ prApp.post("/:repoId/create", verifyToken, async (req, res) => {
       sourceBranch, targetBranch,
       isDraft: !!isDraft,
       createdBy: req.user.id,
+      reviewers: Array.isArray(reviewerIds) ? reviewerIds : [],
+      assignees: Array.isArray(assigneeIds) ? assigneeIds : [],
+      labels: Array.isArray(labels) ? labels : [],
       status: isDraft ? "draft" : "open",
       giteaPRNumber, giteaPRId,
     });
@@ -390,6 +393,17 @@ prApp.post("/:repoId/create", verifyToken, async (req, res) => {
         message: `${user.username} opened a pull request: "${title}"`,
         link: `/repo/${repoId}/pull/${pr._id}`,
         metadata: { senderName: user.username, prId: pr._id, isCrossRepo },
+      });
+    }
+
+    for (const reviewerId of pr.reviewers || []) {
+      if (reviewerId.toString() === req.user.id) continue;
+      await sendNotification({
+        user: reviewerId,
+        type: "PR_ASSIGNED",
+        message: `${user.username} requested your review on "${title}"`,
+        link: `/repo/${repoId}/pull/${pr._id}`,
+        metadata: { senderName: user.username, prId: pr._id },
       });
     }
 
@@ -439,7 +453,8 @@ prApp.get("/detail/:prId", verifyToken, async (req, res) => {
       .populate({ path: "repoId", populate: { path: "owner", select: "username email giteaUsername" } })
       .populate({ path: "baseRepoId", populate: { path: "owner", select: "username email giteaUsername" } })
       .populate({ path: "headRepoId", populate: { path: "owner", select: "username email giteaUsername" } })
-      .populate("reviewers", "username profileImageUrl");
+      .populate("reviewers", "username profileImageUrl")
+      .populate("assignees", "username profileImageUrl");
 
     if (!pr) return res.status(404).json({ message: "Pull request not found" });
 
@@ -565,10 +580,10 @@ prApp.post("/merge/:prId", verifyToken, async (req, res) => {
 
     const baseRepo = pr.baseRepoId || pr.repoId;
 
-    // Only base repo owner / maintainer can merge
+    // Only the base repo owner can merge
     const role = await getUserRepoRole(req.user.id, baseRepo?._id || pr.repoId);
-    if (!role || (role !== "OWNER" && role !== "MAINTAINER")) {
-      return res.status(403).json({ message: "Only the base repository owner or maintainer can merge" });
+    if (role !== "OWNER") {
+      return res.status(403).json({ message: "Only the base repository owner can merge pull requests" });
     }
 
     const user = await UserModel.findById(req.user.id).select("username giteaToken");
@@ -741,6 +756,55 @@ prApp.post("/close/:prId", verifyToken, async (req, res) => {
  * ADD REVIEW
  * POST /pr-api/review/:prId
  * ──────────────────────────────────────────────────────────────────────────── */
+/* REJECT PR */
+prApp.post("/reject/:prId", verifyToken, async (req, res) => {
+  try {
+    const { message = "Pull request rejected." } = req.body;
+    const pr = await PullRequestModel.findById(req.params.prId)
+      .populate({ path: "baseRepoId", populate: { path: "owner", select: "username giteaUsername giteaToken" } })
+      .populate("repoId");
+    if (!pr) return res.status(404).json({ message: "PR not found" });
+    if (pr.status !== "open") return res.status(400).json({ message: "PR is not open" });
+
+    const baseRepo = pr.baseRepoId || pr.repoId;
+    const role = await getUserRepoRole(req.user.id, baseRepo?._id || pr.repoId);
+    if (!role || (role !== "OWNER" && role !== "MAINTAINER")) {
+      return res.status(403).json({ message: "Only the base repository owner or maintainer can reject" });
+    }
+
+    const user = await UserModel.findById(req.user.id).select("username giteaToken");
+
+    if (isGiteaConfigured() && pr.giteaPRNumber && baseRepo?.giteaFullName && user.giteaToken) {
+      const [baseGiteaOwner, baseGiteaRepo] = baseRepo.giteaFullName.split("/");
+      const giteaToken = decryptToken(user.giteaToken);
+      await closeGiteaPR(baseGiteaOwner, baseGiteaRepo, giteaToken, pr.giteaPRNumber);
+    }
+
+    await ReviewModel.create({
+      prId: pr._id,
+      reviewer: req.user.id,
+      reviewType: "request_changes",
+      message,
+    });
+
+    pr.status = "closed";
+    await pr.save();
+
+    await sendNotification({
+      user: pr.createdBy,
+      type: "PR_REJECTED",
+      message: `Your pull request "${pr.title}" was rejected by ${user.username}`,
+      link: `/repo/${baseRepo?._id || pr.repoId}/pull/${pr._id}`,
+      metadata: { senderName: user.username, prId: pr._id },
+    });
+
+    emitActivity(baseRepo?._id || pr.repoId, "PR_REJECTED", { title: pr.title, author: user.username });
+    res.status(200).json({ message: "Pull request rejected", pr });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 prApp.post("/review/:prId", verifyToken, async (req, res) => {
   try {
     const { reviewType, message } = req.body;
