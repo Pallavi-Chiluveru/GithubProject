@@ -45,7 +45,7 @@ export default function Navbar() {
   }, []);
 
   // Hide navbar on auth pages
-  if (location.pathname === "/" || location.pathname === "/register") {
+  if (location.pathname === "/" || location.pathname === "/login") {
     return null;
   }
 
@@ -333,7 +333,7 @@ export default function Navbar() {
           </>
         ) : (
           <Link
-            to="/"
+            to="/login"
             className="rounded-md bg-[#238636] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#2ea043] transition-all"
           >
             Sign In
