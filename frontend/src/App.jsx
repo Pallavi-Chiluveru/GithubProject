@@ -53,6 +53,8 @@ const PageLoader = () => (
 
 import NotificationProvider from "./components/NotificationProvider";
 
+const HomePage = lazy(() => import("./pages/HomePage"));
+
 function App() {
   return (
     <ThemeProvider>
@@ -60,7 +62,8 @@ function App() {
         <NotificationProvider>
           <Suspense fallback={<PageLoader />}>
             <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/repo/:id" element={<RepoDetails />} />
