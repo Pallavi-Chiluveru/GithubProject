@@ -811,7 +811,7 @@ export default function RepoDetails() {
                     <div className="px-6 py-5 space-y-6">
                       <div>
                         <p className="text-xs font-bold text-[var(--text-primary)] mb-2">Create a new repository on the command line</p>
-                        <pre className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl p-4 text-xs font-mono text-[#7ee787] overflow-x-auto leading-6 select-all whitespace-pre">{`echo "# ${repoName}" >> README.md\ngit init\ngit add README.md\ngit commit -m "first commit"\ngit branch -M main\ngit remote add origin ${cloneUrls.https}\ngit push -u origin main`}</pre>
+                        <pre className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl p-4 text-xs font-mono text-[#2f81f7] overflow-x-auto leading-6 select-all whitespace-pre">{`echo "# ${repoName}" >> README.md\ngit init\ngit add README.md\ngit commit -m "first commit"\ngit branch -M main\ngit remote add origin ${cloneUrls.https}\ngit push -u origin main`}</pre>
                         <button onClick={() => copyToClipboard(`echo "# ${repoName}" >> README.md\ngit init\ngit add README.md\ngit commit -m "first commit"\ngit branch -M main\ngit remote add origin ${cloneUrls.https}\ngit push -u origin main`)}
                           className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-secondary)] hover:text-[#2f81f7] transition-colors">
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
@@ -820,7 +820,7 @@ export default function RepoDetails() {
                       </div>
                       <div>
                         <p className="text-xs font-bold text-[var(--text-primary)] mb-2">Push an existing repository from the command line</p>
-                        <pre className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl p-4 text-xs font-mono text-[#7ee787] overflow-x-auto leading-6 select-all whitespace-pre">{`git remote add origin ${cloneUrls.https}\ngit branch -M main\ngit push -u origin main`}</pre>
+                        <pre className="bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl p-4 text-xs font-mono text-[#2f81f7] overflow-x-auto leading-6 select-all whitespace-pre">{`git remote add origin ${cloneUrls.https}\ngit branch -M main\ngit push -u origin main`}</pre>
                         <button onClick={() => copyToClipboard(`git remote add origin ${cloneUrls.https}\ngit branch -M main\ngit push -u origin main`)}
                           className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-secondary)] hover:text-[#2f81f7] transition-colors">
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
